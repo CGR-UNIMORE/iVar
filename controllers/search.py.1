@@ -1,0 +1,512 @@
+# -*- coding: utf-8 -*-
+import datetime 
+
+# prova qualcosa come
+def index(): return dict(message="hello from search.py")
+
+
+#####################################
+####   VARIANT_SEARCH_CRITERIA   ####
+#####################################
+
+@auth.requires_permission('view', 'VARIANT')
+def variant_search_criteria_list():
+    response.title = T('Variant Search criteria')
+    form_head=head_title(response.title)
+
+    db.VARIANT_SEARCH_CRITERIA.id.readable=False
+    db.VARIANT_SEARCH_CRITERIA.id.writeable=False
+
+    query= (db.VARIANT_SEARCH_CRITERIA)
+
+    exportclasses=dict(
+        csv_with_hidden_cols=False,
+        tsv_with_hidden_cols=False
+                       )
+#        csv=(ExporterCSV, 'CSV'),
+#        xml=(ExporterXML, 'XML'),
+#        html=(ExporterHTML, 'HTML'),
+#        tsv=(ExporterTSV, 'TSV (Excel compatible)')
+
+    def is_create(): return auth.has_permission('manage', 'VARIANT')
+    def is_visible(): return auth.has_permission('view', 'VARIANT')
+
+    links = [(lambda row:A('', _title=T('Edit')
+                            ,_class='btn btn-default btn-secondary btn-sm icon pen icon-pen glyphicon glyphicon-pencil'
+                            ,_href=URL("search","variant_search_criteria_edit",args=[row.id])) if is_visible() else '')
+             ,(lambda row: A('', _title=T('Duplicate')
+                            ,_class='btn btn-secondary btn-sm icon plus icon-plus glyphicon glyphicon-plus'
+                            ,_href=URL("search","variant_search_criteria_copy",args=[row.id])) if is_create() else '')
+         ]
+
+    default_sort_order=[db.VARIANT_SEARCH_CRITERIA.search_name]
+
+    form = SQLFORM.grid(query=query
+                        #,fields=fields
+                        #,headers=headers
+                        ,links = links
+                        #,links_in_grid = True
+                        ,orderby=default_sort_order
+                        ,create=False
+                        ,deletable= False
+                        ,editable=False
+                        ,details=False
+                        #,sorter_icons=(XML('&#x2191;'), XML('&#x2193;'))
+                        ,showbuttontext=False
+                        ,maxtextlength=50
+                        #,maxtextlengths=maxtextlengths
+                        ,paginate=8
+                        ,csv = False
+                        #,exportclasses=exportclasses
+                        ,buttons_placement = 'left'
+                        ,links_placement = 'right'
+                        ,onvalidation=validation_VARIANT_SEARCH_CRITERIA
+                        ,user_signature=False
+                        ,args=request.args[:1]
+                       )
+
+    #form.element('.web2py_counter', replace=None) # toglie numero records trovati
+
+    add_record = A(' ' , _title=T('Add')
+                       ,_class='button btn btn-default btn-secondary btn-sm icon plus icon-plus glyphicon glyphicon-plus'
+                       ,_href=URL("search","variant_search_criteria_insert")
+                       ,_name='btn_variant_search_criteria_Add'
+                       ,_id ='btn_variant_search_criteria_Add'
+                  )
+
+    form[0].insert(-2,add_record) if auth.has_permission('manage', 'VARIANT')else ''
+    
+    return response.render(default_view, dict(form_head=form_head,form=form))
+
+@auth.requires_permission('manage', 'VARIANT')
+def variant_search_criteria_copy():
+    variant_search_criteria_id = request.args(0) or redirect(URL('search','variant_search_criteria_list'))
+
+    if variant_search_criteria_id=='None':
+        session.flash = T('error occured during call "Duplicate variant search criteria"')
+        redirect(URL('search','variant_search_criteria_list'))
+
+    copy_VARIANT_SEARCH_CRITERIA(variant_search_criteria_id)
+    redirect(URL('search','variant_search_criteria_list'))
+    return
+
+def variant_search_criteria_form(record):
+
+    response.title = T('Variant Search criteria')
+    form_head=head_title(response.title,URL('search','variant_search_criteria_list'))
+
+    db.VARIANT_SEARCH_CRITERIA.id.writable = False
+    db.VARIANT_SEARCH_CRITERIA.id.readable = False
+
+
+    form=SQLFORM(db.VARIANT_SEARCH_CRITERIA
+                ,record
+                ,readonly=False
+                ,deletable=True
+                #,formstyle="bootstrap4_stacked" #"table3cols"#"bootstrap3_inline","bootstrap2", "table3cols", "table2cols"  bootstrap3_stacked
+                ,args=request.args[:1]
+                )
+    #form.custom.widget['HP_id'][0].add_class('form-control')
+    
+    if form.process(onvalidation=validation_VARIANT_SEARCH_CRITERIA).accepted:
+        if form.deleted:
+            session.flash = T('delete done')
+            redirect(URL('search','variant_search_criteria_list'))
+        else:
+            if record:
+                response.flash = T('modify done')
+                redirect(URL('search','variant_search_criteria_list'))
+            else: # sono in inserimento
+                redirect(URL('search','variant_search_criteria_list'))
+    
+    return dict(form_head=form_head,form=form)
+
+@auth.requires_permission('view', 'VARIANT')
+def variant_search_criteria_edit():
+    variant_search_criteria_id = request.args(0) or None
+    if variant_search_criteria_id=='None':
+        return response.render(default_view, dict(form_head='',form=''))
+
+    record = db.VARIANT_SEARCH_CRITERIA(db.VARIANT_SEARCH_CRITERIA.id==variant_search_criteria_id) or None
+
+    dict_forms = variant_search_criteria_form(record)
+
+
+    return response.render(default_view, dict_forms)
+
+@auth.requires_permission('manage', 'VARIANT')
+def variant_search_criteria_insert():
+
+    dict_forms = variant_search_criteria_form(None)
+
+    return response.render(default_view, dict_forms)
+
+
+###################################################
+@auth.requires_permission('view', 'VARIANT')
+def variant():
+    response.title = T('Variants\'s search')
+    form_head=head_title(response.title)
+    # search_widget = SQLFORM.search_menu2(fields)
+   
+    #campi di ricerca
+    search_criteria_id = request.vars.search_criteria_id
+    fl_time_criteria = request.vars.fl_time_criteria or "-"
+    date_from = string_to_date(request.vars.date_from, '%d/%m/%Y')
+    date_to = string_to_date(request.vars.date_to, '%d/%m/%Y')
+    fl_type_result = request.vars.fl_type_result or "A"
+
+    form = SQLFORM.factory(
+                Field('search_criteria_id' , type='integer'
+                                           , length = 11
+                                           , label = T('Variant\'s Search')
+                                           , default = search_criteria_id
+                                           , requires = IS_IN_DB(db, 'VARIANT_SEARCH_CRITERIA.id', '%(search_name)s', error_message=T('mandatory'))
+                     )
+               ,Field('fl_time_criteria'   , type='string'
+                                           , length = 1
+                                           , label = T('Time criteria')
+                                           , requires = IS_IN_SET([('-',T('indifferent (all)')),('V',T('Valid form after last check variant')),('P',T('select:'))])
+                                           , default = fl_time_criteria
+                                           , widget=lambda f,v : SQLFORM.widgets.radio.widget(f,v,style='table', cols=1, _width='100%')
+                                           , id='fl_time_criteria'
+                     )
+               ,Field('date_from'          , type='date'
+                                           , label = T('Form date:')
+                                           , default = date_from
+                                           , requires = IS_EMPTY_OR(IS_DATE(format='%d/%m/%Y'))
+                     )
+               ,Field('date_to'            , type='date'
+                                           , label = T('To date:')
+                                           , default = date_to
+                                           , requires = IS_EMPTY_OR(IS_DATE(format='%d/%m/%Y'))
+                     )
+               ,Field('fl_type_result'   , type='string'
+                                           , length = 1
+                                           , label = T('List of result')
+                                           , requires = IS_IN_SET([('A',T('Variants with Attributes')),('V',T('only Variants'))])
+                                           , default = fl_type_result
+                                           , widget=lambda f,v : SQLFORM.widgets.radio.widget(f,v,style='table', cols=2, _width='100%')
+                                           , id='fl_type_result'
+                     )
+               #,formstyle='bootstrap4_stacked' #table3cols'#bootstrap3_inline'#'divs'
+               ,submit_button = T("Search")
+               ,table_name = "search"
+            )
+
+
+#risposta
+    iframe_search_results=''
+    search_criteria_id = None
+    fl_time_criteria = "-"
+    date_from = None
+    date_to = None
+    if form.process().accepted:
+        response.flash = ''
+        search_criteria_id = form.vars.search_criteria_id
+        fl_time_criteria = form.vars.fl_time_criteria
+        date_from = date_to_string(string_to_date(request.vars.date_from, '%d/%m/%Y'),'%Y-%m-%d')
+        date_to = date_to_string(string_to_date(request.vars.date_to, '%d/%m/%Y'),'%Y-%m-%d')
+        fl_type_result = form.vars.fl_type_result
+        """
+        if fl_type_result == "V":
+            response.new_window = URL('search','variant_list'
+                                      ,args=[search_criteria_id]
+                                      ,vars=dict(fl_time_criteria=fl_time_criteria,date_from=date_from,date_to=date_to))
+
+        if fl_type_result == "A":
+            response.new_window = URL('search','variant_attribute_list'
+                                      ,args=[search_criteria_id]
+                                      ,vars=dict(fl_time_criteria=fl_time_criteria,date_from=date_from,date_to=date_to))
+
+        """
+        if fl_type_result == "V":
+            url='variant_list'
+        if fl_type_result == "A":
+            url = 'variant_attribute_list'
+
+        iframe_search_results = IFRAME(T('Search\'s result')
+                                        ,_title=T('Search\'s result')
+                                        ,_src=URL('search',url
+                                                  ,args=[search_criteria_id]
+                                                  ,vars=dict(fl_time_criteria=fl_time_criteria
+                                                            ,date_from=date_from,date_to=date_to))
+                                        ,_style="padding-top:0px;height:100%; width:100%"
+                                        ,_frameborder='0',_scrolling='yes'
+                                        ,_onload='resize_iframe(this)'
+                                        ,_id='iframe_search_result'
+                                       ) 
+
+
+    elif form.errors:
+        response.flash = ''
+
+
+    return dict(form_head=form_head,form=form,iframe_search_results=iframe_search_results)
+
+
+@auth.requires_permission('view', 'VARIANT')
+def variant_list():
+    search_criteria_id = request.args(0) or None
+    if search_criteria_id == None:
+        search_criteria_id = -1
+
+    fl_time_criteria = (request.vars['fl_time_criteria']) if (request.vars['fl_time_criteria']) else None
+    date_from = (request.vars['date_from']) if (request.vars['date_from']) else None
+    date_to = (request.vars['date_to']) if (request.vars['date_to']) else None
+    rows_for_page = (request.vars['rows_for_page']) if (request.vars['rows_for_page']) else 5
+
+    links = [(lambda row: A('Variant', _title=T('Variant')
+                                    ,_class='button btn btn-default btn-secondary btn-link btn-sm'
+                                    ,_href=URL("variant","variant_edit" ,args=[row.id], vars=dict(form_head_indietro='NO'))
+                                    ,_target="blank") if (auth.has_permission('view', 'VARIANT')) else '')
+            ,dict(header=T('#Samples'),
+                   body=lambda row: A(str(num_samples_of_variant(row.id))
+                                      ,_class='btn btn-default btn-secondary btn-sm'
+                                      ,_title=T('Samples')
+                                      ,_href=URL('sample_variant','samples_of_variant',args=[row.id])
+                                      ,_target='blank'
+                                       ) if auth.has_permission('view', 'SAMPLE_VARIANT') 
+                                       else SPAN(str(num_samples_of_variant(row.id))
+                  ,_class='btn btn-default btn-secondary btn-sm')
+                 )
+            ]
+    
+    for field in db.VARIANT:
+        field.readable = False
+    db.VARIANT.id.writable = False
+
+    fields= (db.VARIANT.gene
+            ,db.VARIANT.id_hg19
+            #,db.VARIANT.id_hg38
+            ,db.VARIANT.classif
+            ,db.VARIANT.last_check
+            )
+
+    for field in fields:
+        field.readable = True
+        
+    exportclasses=dict(
+        csv_with_hidden_cols=False,
+        tsv_with_hidden_cols=False
+                   )
+
+    default_sort_order=[db.VARIANT.gene, db.VARIANT.id_hg19]
+
+    d = variant_query(search_criteria_id,fl_time_criteria,date_from,date_to,"V")
+    query = d["query"]
+    q = d["q"]
+
+    #debug
+    #form_head = FORM(DIV(q))
+    #query = -1
+    if query == -1:
+        form = FORM(DIV(T('ERROR in Search criteria setting!')
+                       ,A(' -> Search Criteria', _href=URL('search','variant_search_criteria_list'), _target = 'blank')
+                       ,BR()
+                       ,q))
+    elif query:
+        form = SQLFORM.grid(query=query
+                            ,fields=fields
+                            #,headers=headers
+                            #,field_id=field_id
+                            ,links = links
+                            ,links_in_grid = True
+                            ,orderby=default_sort_order
+                            ,create=False
+                            ,deletable=False
+                            ,editable=False
+                            ,details=False
+                            #,sorter_icons=(XML('&#x2191;'), XML('&#x2193;'))
+                            ,showbuttontext=False
+                            ,maxtextlength=50
+                            #,maxtextlengths=maxtextlengths
+                            ,paginate=rows_for_page
+                            ,csv = True
+                            ,exportclasses=exportclasses
+                            ,buttons_placement = 'left'
+                            ,links_placement = 'right'
+                            ,user_signature=False
+                            ,args=request.args[:1]
+                           )
+    else:
+        form = ''
+
+    return response.render(default_subview, dict(form_head='',form=form))
+
+@auth.requires_permission('view', 'VARIANT')
+def variant_attribute_list():
+    search_criteria_id = request.args(0) or None
+    if search_criteria_id == None:
+        search_criteria_id = -1
+
+    fl_time_criteria = (request.vars['fl_time_criteria']) if (request.vars['fl_time_criteria']) else None
+    date_from = (request.vars['date_from']) if (request.vars['date_from']) else None
+    date_to = (request.vars['date_to']) if (request.vars['date_to']) else None
+    rows_for_page = (request.vars['rows_for_page']) if (request.vars['rows_for_page']) else 5
+
+    links = [(lambda row: A('Variant', _title=T('Variant')
+                                    ,_class='button btn btn-default btn-secondary btn-link btn-sm'
+                                    ,_href=URL("variant","variant_edit" ,args=[row.VARIANT.id], vars=dict(form_head_indietro='NO'))
+                                    ,_target="blank") if (auth.has_permission('view', 'VARIANT')) else '')
+            ,dict(header=T('#Samples'),
+                   body=lambda row: A(str(num_samples_of_variant(row.VARIANT.id))
+                                      ,_class='btn btn-default btn-secondary btn-sm'
+                                      ,_title=T('Samples')
+                                      ,_href=URL('sample_variant','samples_of_variant',args=[row.VARIANT.id])
+                                      ,_target='blank'
+                                       ) if auth.has_permission('view', 'SAMPLE_VARIANT') 
+                                       else SPAN(str(num_samples_of_variant(row.VARIANT.id))
+                  ,_class='btn btn-default btn-secondary btn-sm')
+                 )
+            ]
+    
+    for field in db.VARIANT:
+        field.readable = False
+    for field in db.VARIANT_ATTRIBUTE_VALID:
+        field.readable = False
+    db.VARIANT.id.writable = False
+    db.VARIANT_ATTRIBUTE_VALID.id.writable = False
+
+
+    fields= (db.VARIANT.gene
+            ,db.VARIANT.id_hg19
+            #,db.VARIANT.id_hg38
+            ,db.VARIANT.classif
+            ,db.VARIANT.last_check
+            ,db.VARIANT_ATTRIBUTE_VALID.valid_from
+            ,db.VARIANT_ATTRIBUTE_VALID.attribute_name
+            ,db.VARIANT_ATTRIBUTE_VALID.attribute_value
+            )
+
+    for field in fields:
+        field.readable = True
+        
+    exportclasses=dict(
+        csv_with_hidden_cols=False,
+        tsv_with_hidden_cols=False
+                   )
+
+    default_sort_order=[db.VARIANT.gene, db.VARIANT.id_hg19]
+
+    d = variant_query(search_criteria_id,fl_time_criteria,date_from,date_to,"A")
+    query = d["query"]
+    q = d["q"]
+
+    field_id = db.VARIANT.id
+
+
+    #debug
+    #form_head = FORM(DIV(q))
+    #query = -1
+    if query == -1:
+        form = FORM(DIV(T('ERROR in Search criteria setting!')
+                       ,A(' -> Search Criteria', _href=URL('search','variant_search_criteria_list'), _target = 'blank')
+                       ,BR()
+                       ,q))
+    elif query:
+        form = SQLFORM.grid(query=query
+                            ,fields=fields
+                            #,headers=headers
+                            ,field_id=field_id
+                            ,links = links
+                            ,links_in_grid = True
+                            ,orderby=default_sort_order
+                            ,create=False
+                            ,deletable=False
+                            ,editable=False
+                            ,details=False
+                            #,sorter_icons=(XML('&#x2191;'), XML('&#x2193;'))
+                            ,showbuttontext=False
+                            ,maxtextlength=50
+                            #,maxtextlengths=maxtextlengths
+                            ,paginate=rows_for_page
+                            ,csv = True
+                            ,exportclasses=exportclasses
+                            ,buttons_placement = 'left'
+                            ,links_placement = 'right'
+                            ,user_signature=False
+                            ,args=request.args[:1]
+                           )
+    else:
+        form = ''
+
+    return response.render(default_subview, dict(form_head='',form=form))
+
+
+def variant_query(search_criteria_id, fl_time_criteria = "-",date_from= None,date_to= None,fl_type_result= "A"):
+
+    from pydal.helpers.methods import smart_query
+    r = None
+    if search_criteria_id != -1:
+        r = db(db.VARIANT_SEARCH_CRITERIA.id==search_criteria_id).select().first() or None
+
+    if date_from == 'None':
+        date_from = None
+    if date_to == 'None':
+        date_to = None
+
+    if fl_time_criteria == None:
+        fl_time_criteria = "-"
+    elif fl_time_criteria == 'P': # se periodo e non sono impostate le date, il periodo è indifferente!
+        if date_from == None and date_to == None:
+            fl_time_criteria = "-"
+
+    if r and r.variant and r.variant != "":
+        cond = r.variant
+    else:
+        cond = "VARIANT.id>0"
+    variant_q = smart_query([db.VARIANT], cond)
+
+    if fl_type_result == "A":
+        variant_q &= db.VARIANT.id == db.VARIANT_ATTRIBUTE_VALID.VARIANT_id 
+
+        #with inner join
+        if r.attribute:
+            variant_q &= smart_query([db.VARIANT_ATTRIBUTE_VALID], r.attribute)
+
+        if fl_time_criteria == "V": #valid from after last check
+            variant_q &= db.VARIANT_ATTRIBUTE_VALID.valid_from > db.VARIANT.last_check.coalesce('1900-01-01') 
+        elif fl_time_criteria == "P": #valid in specityed period
+            if date_from and date_to: #per mettere le parentesi corrette nella and
+                variant_q &= (db.VARIANT_ATTRIBUTE_VALID.valid_from >= date_from) & (db.VARIANT_ATTRIBUTE_VALID.valid_from <= date_to)
+            else:
+                if date_from:
+                    variant_q &= db.VARIANT_ATTRIBUTE_VALID.valid_from >= date_from
+                if date_to:
+                    variant_q &= db.VARIANT_ATTRIBUTE_VALID.valid_from <= date_to
+
+    if fl_type_result == "V":
+        #with subselect
+        if r.attribute == "" or r.attribute == None:
+            r.attribute = "VARIANT_ATTRIBUTE_VALID.id>0"
+        attribute_q = smart_query([db.VARIANT_ATTRIBUTE_VALID], r.attribute)
+
+        if fl_time_criteria == "V": #valid from after last check
+            attribute_q &= db.VARIANT.id == db.VARIANT_ATTRIBUTE_VALID.VARIANT_id 
+            attribute_q &= db.VARIANT_ATTRIBUTE_VALID.valid_from > db.VARIANT.last_check.coalesce('1900-01-01') 
+        elif fl_time_criteria == "P": #valid in specityed period
+            if date_from and date_to: #per mettere le parentesi corrette nella and
+                attribute_q &= (db.VARIANT_ATTRIBUTE_VALID.valid_from >= date_from) & (db.VARIANT_ATTRIBUTE_VALID.valid_from <= date_to)
+            else:
+                if date_from:
+                    attribute_q &= db.VARIANT_ATTRIBUTE_VALID.valid_from >= date_from
+                if date_to:
+                    attribute_q &= db.VARIANT_ATTRIBUTE_VALID.valid_from <= date_to
+
+        try:
+            select_attribute = db(attribute_q)._select(db.VARIANT_ATTRIBUTE_VALID.VARIANT_id)
+        except:
+            return dict(query=-1, q=str(attribute_q))
+
+        variant_q &= db.VARIANT.id.belongs(select_attribute)
+
+    #endif fl_type_result == "V":
+
+    
+    try:
+        select_variant  = db(variant_q)._select()
+    except:
+        return dict(query=-1, q=str(variant_q))
+
+    return dict(query=variant_q, q=str(variant_q))

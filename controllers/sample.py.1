@@ -1,0 +1,261 @@
+# -*- coding: utf-8 -*-
+
+
+
+def index():    return dict(message="hello from sample.py")
+
+
+def is_manage()     :return (auth.has_permission('manage', 'SAMPLE'))
+
+#########################
+####   TISSUE TYPE   ####
+#########################
+
+@auth.requires_permission('manage', 'SAMPLE')
+def tissue_type_list():
+    response.title = T('Tissue Type for sample')
+    form_head=head_title(response.title)
+
+    db.TISSUE_TYPE.id.readable=False
+    db.TISSUE_TYPE.id.writeable=False
+
+    query= (db.TISSUE_TYPE)
+
+    exportclasses=dict(
+        csv_with_hidden_cols=False,
+        tsv_with_hidden_cols=False
+                       )
+#        csv=(ExporterCSV, 'CSV'),
+#        xml=(ExporterXML, 'XML'),
+#        html=(ExporterHTML, 'HTML'),
+#        tsv=(ExporterTSV, 'TSV (Excel compatible)')
+
+
+    default_sort_order=[db.TISSUE_TYPE.tissue_type]
+
+    form = SQLFORM.grid(query=query
+                        #,fields=fields
+                        #,headers=headers
+                        #,links = links
+                        #,links_in_grid = True
+                        ,orderby=default_sort_order
+                        ,create=True
+                        ,deletable=True
+                        ,editable=True
+                        ,details=False
+                        #,sorter_icons=(XML('&#x2191;'), XML('&#x2193;'))
+                        ,showbuttontext=False
+                        ,maxtextlength=50
+                        #,maxtextlengths=maxtextlengths
+                        ,paginate=10
+                        ,csv = True
+                        ,exportclasses=exportclasses
+                        ,buttons_placement = 'left'
+                        ,links_placement = 'right'
+                        ,onvalidation=validation_TISSUE_TYPE
+                        ,user_signature=False
+                        ,args=request.args[:1]
+                       )
+
+    form.element('.web2py_counter', replace=None) # toglie numero records trovati
+    return response.render(default_view, dict(form_head=form_head,form=form))
+
+
+
+####################
+####   SAMPLE   ####
+####################
+
+@auth.requires_permission('view', 'SAMPLE')
+def list():
+    response.title = T('Samples')
+    form_head=head_title(response.title)
+
+    #prepara i dati per valorizzazione di default
+    form_default = list_form_default()
+
+    db.SAMPLE.fl_sample_type.represent = lambda value,row:  options_widget(db.SAMPLE.fl_sample_type,value, _class="form-control",
+                                                                           **{'_name':'fl_sample_type_row_%s' % row.id})
+    db.SAMPLE.TISSUE_TYPE_id.represent = lambda value,row:  options_widget(db.SAMPLE.TISSUE_TYPE_id,value, _class="form-control",
+                                                                           **{'_name':'TISSUE_TYPE_id_row_%s' % row.id})
+    db.SAMPLE.fl_sex.represent = lambda value,row:  options_widget(db.SAMPLE.fl_sex,value, _class="form-control",
+                                                                   **{'_name':'fl_sex_row_%s' % row.id})
+
+    #if (request.vars['keywords']):
+    #    db.SAMPLE.id.readable=True
+    #    db.SAMPLE.id.writeable=False
+    #else:
+    #    db.SAMPLE.id.readable=False
+    #    db.SAMPLE.id.writeable=False
+    db.SAMPLE.id.readable=False
+    db.SAMPLE.id.writeable=False
+
+    query = (db.SAMPLE)
+
+    def is_visible()      :return (auth.has_permission('view', 'SAMPLE'))
+    def is_create()      :return (auth.has_permission('manage', 'SAMPLE'))
+    def is_deletable(): return   (auth.has_permission('delete', 'SAMPLE'))
+
+    links = [(lambda row: A('', _title=T('Dettaglio')
+                            ,_class='button btn btn-default btn-secondary btn-sm icon pen icon-pen glyphicon glyphicon-pencil'
+                            ,_href=URL("sample","edit",args=[row.id])) if is_visible() else '')
+            ,dict(header=T('#Var'),
+                   body=lambda row: A(str(num_variants_of_sample(row.id))
+                                       ,_class='btn btn-default btn-secondary btn-sm'
+                                      ,_title=T('Variant of sample')
+                                      ,_href=URL('sample_variant','variants_of_sample',args=[row.id])
+                                      ,_target='blank'
+                                       ) if auth.has_permission('view', 'SAMPLE_VARIANT') else SPAN(str(num_variants_of_sample(row.id))
+                                                                                                    ,_class='btn btn-default btn-secondary btn-sm')
+                )
+            ]
+
+
+    exportclasses=dict(
+        csv_with_hidden_cols=False,
+        tsv_with_hidden_cols=False
+                       )
+#        csv=(ExporterCSV, 'CSV'),
+#        xml=(ExporterXML, 'XML'),
+#        html=(ExporterHTML, 'HTML'),
+#        tsv=(ExporterTSV, 'TSV (Excel compatible)')
+
+
+    default_sort_order=[~db.SAMPLE.date_sample,db.SAMPLE.sample]
+
+    form_list = SQLFORM.grid(query=query
+                        #,fields=fields
+                        #,headers=headers
+                        ,links = links
+                        ,links_in_grid = True
+                        ,orderby=default_sort_order
+                        ,create=False #is_create()
+                        ,deletable=is_deletable()
+                        ,editable=False
+                        ,details=False
+                        ,searchable=True
+                        #,sorter_icons=(XML('&#x2191;'), XML('&#x2193;'))
+                        ,showbuttontext=False
+                        ,maxtextlength=50
+                        #,maxtextlengths=maxtextlengths
+                        ,paginate=10
+                        ,csv = True
+                        ,exportclasses=exportclasses
+                        ,buttons_placement = 'left'
+                        ,links_placement = 'right'
+                        ,onvalidation=validation_SAMPLE
+                        ,oncreate=oncreate_SAMPLE
+                        ,user_signature=False
+                        ,args=request.args[:1]
+                        ,selectable= lambda ids : [sample_elabora(ids,request.post_vars)
+                                                  ,redirect(URL('sample','list',vars=request._get_vars))
+                                                  ]
+                        ,selectable_submit_button=T('Save')
+                       )
+
+    #preseneziono tutti gli id della pagina, poi li nascondo per fare in modo che tutti quelli modificati vengano salvati
+    #check_record = form_list.elements(_type='checkbox',_name='records') 
+    #for ck in check_record:
+    #    ck["_checked"] = "True"
+    #    ck["_style"] = "display:none"
+    #trovato soluzione migliore: si preselezionano quando si fa una modifica 
+    
+    form_list.element('.web2py_counter', replace=None) # toglie numero records trovati
+
+    #return response.render(default_view, dict(form_head=form_head,form=form))
+    return  dict(form_head=form_head,form_default=form_default,form_list=form_list)
+
+
+def list_form_default():
+
+    form = SQLFORM.factory(
+        Field('fl_sample_type', type = db.SAMPLE.fl_sample_type.type
+                                     , label = db.SAMPLE.fl_sample_type.label
+                                     , requires = db.SAMPLE.fl_sample_type.requires
+                                     , widget = db.SAMPLE.fl_sample_type.widget
+             )
+       ,Field('TISSUE_TYPE_id', type = db.SAMPLE.TISSUE_TYPE_id.type
+                                     , label = db.SAMPLE.TISSUE_TYPE_id.label
+                                     , requires = db.SAMPLE.TISSUE_TYPE_id.requires
+                                     , widget = db.SAMPLE.TISSUE_TYPE_id.widget
+             )
+       ,Field('fl_sex', type = db.SAMPLE.fl_sex.type
+                             , label = db.SAMPLE.fl_sex.label
+                             , requires = db.SAMPLE.fl_sex.requires
+                             , widget = db.SAMPLE.fl_sex.widget
+             )
+#       ,submit_button = T("Valorizza")
+       ,table_name = "default"
+        )
+#    submit = form.element("input",_type="submit")
+#    submit["_type"]="button"
+#    submit["_onclick"]="imposta_default()"
+    return form
+
+
+def sample_elabora(ids,post_vars):
+    for id in ids:
+        row = db(db.SAMPLE.id == id).select().first()
+        if not row: return False
+
+        row.fl_sample_type = post_vars['fl_sample_type_row_'+ str(id)]
+        row.TISSUE_TYPE_id=post_vars['TISSUE_TYPE_id_row_'+ str(id)]
+        row.fl_sex=post_vars['fl_sex_row_'+ str(id)]
+
+        row.update_record()
+
+
+def oncreate_SAMPLE(form):
+    if 'new' in request.args:
+        session.flash = T('inserimento effettuato')
+        redirect(URL('sample','edit',args=[form.vars.id]))
+    return True
+
+
+@auth.requires_permission('view', 'SAMPLE')
+def edit():
+    sample_id = request.args(0) or redirect(URL('sample','list'))
+    record = db.SAMPLE(db.SAMPLE.id==sample_id) or None
+
+    response.title = T('Edit Sample')
+
+    form_head=head_title(response.title,URL('sample','list'))
+
+    db.SAMPLE.VCF_FILE_ids.writable  = False
+    #generic-widget form-control
+    
+    #db.SAMPLE.VCF_FILE_ids.represent = lambda value,row: vcf_file_ids_list(value)
+    db.SAMPLE.VCF_FILE_ids.represent = lambda value,row: string_widget(db.SAMPLE.VCF_FILE_ids,vcf_file_ids_list(value).replace("\n","  "), _readonly='readonly')
+
+    def is_readonly(): return ((auth.has_permission('view', 'SAMPLE')) and (not (auth.has_permission('manage', 'SAMPLE'))))
+
+    form=SQLFORM(db.SAMPLE
+                ,record
+                ,readonly=is_readonly()
+                ,deletable=False
+                ,showid=False
+                )
+
+    if form.process(onvalidation=validation_SAMPLE).accepted:
+        if form.deleted:
+            session.flash = T('cancellazione effettuata')
+            redirect(URL('sample','list'))
+        else:
+            if record:
+                response.flash = T('variazione effettuata')
+            #else:
+                # in inserimento di qui non passo mai, perchè questa funzione viene chiamata in editing
+
+    iframe_variant = ''
+    if auth.has_permission('view', 'SAMPLE_VARIANT') and record:
+        iframe_variant = IFRAME(T('Variant')
+                              ,_title=T('Variant')
+                              ,_src=URL('sample_variant','variants_of_sample',args=[record.id])
+                              ,_style="padding-left:0px; height:100%; width:100%"
+                              ,_frameborder='0',_scrolling='yes'
+                              ,_onload='resize_iframe(this)'
+                              ,_id='iframe_sample_variant'
+                           )
+
+    #return response.render(default_view, dict(form_head=form_head,form=form, iframe=iframe_attribute))
+    return dict(form_head=form_head,form=form,iframe_variant=iframe_variant)

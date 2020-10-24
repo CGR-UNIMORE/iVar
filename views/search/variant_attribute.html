@@ -1,0 +1,128 @@
+<!--
+    This file is part of iVar - DataBase of Genomics Variants
+
+    Copyright (C) 2020 Federica Cestari, Enrico Tagliafico,
+    Sara Castellano and Giovanni Faglioni
+    Copyright (C) 2020 Universita di Modena e Reggio Emilia
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{{extend 'layout.html'}}
+
+{{=form_head}}
+
+<form action="#" enctype="multipart/form-data" method="post" id="form_search">
+<!--{{=form.custom.begin}}-->
+    <div class="form-group row" style="margin-bottom:0.5rem;" id='search_criteria_id__row' >
+            <label class="form-control-label col-sm-2">
+                {{=form.custom.label['search_criteria_id']}}
+            </label>
+            <div class="col-sm-9">
+                {{=form.custom.widget['search_criteria_id']}}
+                <span class="help-block">{{=form.custom.comment['search_criteria_id']}}</span>
+            </div>
+            <label class="form-control-label col-sm-1">
+                {{=A(T('Criteria'), ' ->', _href=URL('search','search_criteria_list'), _target='blank')}}
+            </label>
+    </div>
+    <div class="form-group row"  style="margin-bottom:0.3rem;" id='search_fl_time_criteria__row' >
+            <label class="form-control-label col-sm-2">
+                {{=form.custom.label['fl_time_criteria']}}
+            </label>
+            <div class="col-sm-5" style="margin-top:0.4rem">
+                {{=form.custom.widget['fl_time_criteria']}}
+                <span class="help-block">{{=form.custom.comment['fl_time_criteria']}}</span>
+            </div>
+            <div class="col-sm-2" >
+                {{=form.custom.widget['date_from']}}
+                <span class="help-block">{{=form.custom.comment['date_from']}}</span>
+            </div>
+            <div class="col-sm-2">
+                {{=form.custom.widget['date_to']}}
+                <span class="help-block">{{=form.custom.comment['date_to']}}</span>
+            </div>
+            <div class="col-sm-1">
+            </div>
+    </div>
+     <div class="form-group row" style="margin-bottom:0.3rem;" id='search_fl_values_criteria__row' >
+            <label class="form-control-label col-sm-2">
+                {{=form.custom.label['fl_values_criteria']}}
+            </label>
+            <div class="col-sm-4" style="margin-top:0.4rem">
+                {{=form.custom.widget['fl_values_criteria']}}
+                <span class="help-block">{{=form.custom.comment['fl_values_criteria']}}</span>
+            </div>
+            <div class="col-sm-6">
+            </div>
+    </div>
+    <div class="form-group row" style="margin-bottom:0rem;" id='search_fl_type_result__row' >
+            <label class="form-control-label col-sm-2" >
+                {{=form.custom.label['fl_type_result']}}
+            </label>
+            <div class="col-sm-7" style="margin-top:0.4rem">
+                {{=form.custom.widget['fl_type_result']}}
+                <span class="help-block">{{=form.custom.comment['fl_type_result']}}</span>
+            </div>
+            <div class="col-sm-2">
+                {{=form.custom.submit}}
+            </div>
+            <div class="col-sm-1">
+            </div>
+    </div>
+
+
+{{=form.custom.end}}
+{{=iframe_search_results}}
+
+
+<script src="{{=URL('static','js/ivar.js')}}"></script>
+
+<script>
+
+var tabella = 'search';
+
+function date() {
+    if($('input[name=fl_time_criteria]').length == 0) { /* non esiste campo input, cioè siamo in readonly */
+
+        abilita(tabella,'date_from');
+        abilita(tabella,'date_to');
+
+    } else {
+        const checkboxes = document.querySelectorAll('input[name="fl_time_criteria"]:checked');
+        let a = [];
+        checkboxes.forEach((checkbox) => {
+            a.push(checkbox.value);
+        });
+        if (a.includes('P'))  {
+            abilita(tabella,'date_from');
+            abilita(tabella,'date_to');
+        } else {
+            disabilita(tabella,'date_from');
+            disabilita(tabella,'date_to');
+        }
+    }
+};
+
+
+
+jQuery(document).ready(function(){
+    date();
+
+    jQuery('#search_fl_time_criteria').change(function(){
+        date();
+    });
+});
+
+</script>

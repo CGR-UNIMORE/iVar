@@ -1,0 +1,158 @@
+from gluon.http import HTTP
+import base64
+import os
+import string
+import random
+
+try:
+    import gluon.contrib.pyaes as AES
+except ImportError:
+    try:
+        import gluon.contrib.aes as AES
+    except ImportError:
+        aes_type = '-'
+    else:
+        aes_type = 'aes'
+else:
+    aes_type = 'pyaes'
+
+def crypt_aes(action, key, data, iv_random=True, iv_value=None):
+
+    try:
+        # The information of the message have to be multiple of 16 (AES block size), for this reason PADDING.
+        # PADDING Guarantees that the message is multiple of the block
+        padding = ' '
+        pad = lambda s:  s + (16 - len(s) % 16) * padding
+
+        # i primi 16 caratteri sono iv, che mi serviranno per decryptare -> memorizzo iv + data_cryptato
+
+        if action == 'encrypt':
+
+            # Initialization vector. It has the first 16 bytes in the message.
+            # it is used to have the same message encrypted but with different result
+            # CBCMode de AES
+            iv = iv_value
+            #iv = ' ' * 16     # This case should be for the emails
+            if iv_random:
+                iv = os.urandom(16 * 1024)[0:16]
+
+            text = pad(data)
+            ciphertext = AES.new(key, AES.MODE_CBC, iv).encrypt(text)
+            ciphertext = base64.b64encode(iv + ciphertext)
+            return ciphertext
+
+        if action == 'decrypt':
+            ciphrtext = base64.b64decode(data)
+            iv = ciphrtext[:16]
+            ciphrtext = base64.b64decode(data).rstrip(padding)
+            text = AES.new(key, AES.MODE_CBC, iv).decrypt(ciphrtext)[16:]
+            if text != None: text = text.strip()
+            return text
+
+    except Exception as e:
+        HTTP(str(e))
+
+
+def crypt_pyaes(action, key, data, iv_random=True,iv_value=None):
+
+    try:
+        # The information of the message have to be multiple of 16 (AES block size), for this reason PADDING.
+        # PADDING Guarantees that the message is multiple of the block
+        padding = ' '
+        pad = lambda s:  s + (16 - len(s) % 16) * padding
+
+        # i primi 16 caratteri sono iv, che mi serviranno per decryptare -> memorizzo iv + data_cryptato
+
+        if action == 'encrypt':
+
+            # Initialization vector. It has the first 16 bytes in the message.
+            # it is used to have the same message encrypted but with different result
+            # CBCMode de AES
+            iv = iv_value
+            #iv = ' ' * 16     # This case should be for the emails
+            if iv_random:
+                iv = os.urandom(16 * 1024)[0:16]
+
+            aes = AES.AESModeOfOperationCBC(key, iv = iv)
+
+            text = pad(data)
+            ciphertext = ''
+            while text != '':
+                ciphertext += aes.encrypt(text[:16])
+                text = text[16:]
+            ciphertext = base64.b64encode(iv + ciphertext)
+            return ciphertext
+
+        if action == 'decrypt':
+            ciphrtext = base64.b64decode(data)
+            iv = ciphrtext[:16]
+            aes = AES.AESModeOfOperationCBC(key, iv = iv)
+            ciphrtext = base64.b64decode(data).rstrip(padding)[16:]
+            text = ''
+            while ciphrtext != '':
+                text += aes.decrypt(ciphrtext[:16])
+                ciphrtext = ciphrtext[16:]
+            if text != None: text = text.strip()
+            return text
+
+    except Exception as e:
+        HTTP(str(e))
+
+def encrypt(key, data):
+    if aes_type == 'aes':
+        return crypt_aes('encrypt', key, data, True)
+    if aes_type == 'pyaes':
+        return crypt_pyaes('encrypt', key, data, True)
+
+def decrypt(key, data):
+    if aes_type == 'aes':
+        return crypt_aes('decrypt', key, data, True)
+    if aes_type == 'pyaes':
+        return crypt_pyaes('decrypt', key, data, True)
+
+def encrypt_iv(key, data, iv):
+    if aes_type == 'aes':
+        return crypt_aes('encrypt', key, data, False,iv)
+    if aes_type == 'pyaes':
+        return crypt_pyaes('encrypt', key, data, False,iv)
+
+def decrypt_iv(key, data, iv):
+    if aes_type == 'aes':
+        return crypt_aes('decrypt', key, data, False)
+    if aes_type == 'pyaes':
+        return crypt_pyaes('decrypt', key, data, False)
+
+def encrypt_variant(variant_id):
+    k = key()
+    if variant_id:
+        try :
+            v_id = str(variant_id)
+            variant_crypt = encrypt_iv(k,v_id, str(v_id).zfill(16))
+        except Exception as e:
+            variant_crypt = ''
+
+    return variant_crypt
+
+def decrypt_variant(variant_crypt):
+    variant_id = 0
+    if variant_crypt:
+        k = key()
+        try :
+            t = decrypt_noiv(k,variant_crypt)
+        except Exception as e:
+            t = '0'
+        if t:
+            if t.isdigit():
+                variant_id = long(t)
+    return variant_id
+
+def key():
+    #k = 12345678901234567890123456789012 (32 char)
+    k = 'This'
+    k = k + 'Perfect'
+    k = k + 'Code'
+    k = k + 'Will'
+    k = k + 'Never'
+    k = k + 'Work'
+    k = k + 'Fine'
+    return k

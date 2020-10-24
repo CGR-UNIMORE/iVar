@@ -1,0 +1,491 @@
+# -*- coding: utf-8 -*-
+# prova qualcosa come
+def index(): return dict(message="hello from sample_variant.py")
+
+#I legami sample_variant non si aggiungono e non si eliminano, si possono solo editare
+
+def is_manage()     :return (auth.has_permission('manage', 'SAMPLE_VARIANT'))
+
+
+@auth.requires_permission('view', 'SAMPLE_VARIANT')
+def variants_of_sample():
+    sample_id = request.args(0) or None
+
+    if sample_id == None:
+        return response.render(default_subview, dict(form_head='',form=''))
+
+    form_head = ''
+    form_head_indietro = (request.vars['form_head_indietro']) if (request.vars['form_head_indietro']) else ''
+    sample = db(db.SAMPLE.id==sample_id).select().first()
+    if sample:
+        response.title = T('Variants of sample: ') + sample.sample
+        if not form_head_indietro:
+            form_head=head_title(response.title)
+        elif form_head_indietro == "edit":
+            form_head=head_title(response.title,URL('sample_variant',form_head_indietro,args=sample.id))
+        else:
+            form_head=head_title(response.title,URL('sample',form_head_indietro))
+
+
+    #query=(db.SAMPLE_VARIANT.SAMPLE_id == sample_id)
+    query = ((db.SAMPLE_VARIANT.SAMPLE_id == sample_id) & (db.VARIANT.id == db.SAMPLE_VARIANT.VARIANT_id))
+
+    default_sort_order=[db.VARIANT.id_hg19]
+
+    field_id = db.SAMPLE_VARIANT.id
+
+    #per velocizzare l'output altrimenti troppo lento
+    db.SAMPLE_VARIANT.SAMPLE_id.requires=IS_EMPTY_OR(IS_NOT_EMPTY(), null='')
+    db.SAMPLE_VARIANT.VARIANT_id.requires=IS_EMPTY_OR(IS_NOT_EMPTY(), null='')
+    
+    db.SAMPLE_VARIANT.id.writable = False
+    db.SAMPLE_VARIANT.id.readable = False
+
+    db.SAMPLE_VARIANT.SAMPLE_id.default = sample_id
+    db.SAMPLE_VARIANT.SAMPLE_id.writable = False
+    db.SAMPLE_VARIANT.SAMPLE_id.readable = False
+
+    #nascondo campi VARIANT non visualizzati in lista
+    db.VARIANT.id.readable = False
+    db.VARIANT.note.readable = False
+    db.VARIANT.id_hg38.readable = False
+
+    fields= (db.VARIANT.gene
+            ,db.VARIANT.id_hg19
+            ,db.VARIANT.classif
+            ,db.SAMPLE_VARIANT.AF
+            ,db.SAMPLE_VARIANT.GT
+            )
+    
+    def variant_id_of(sample_variant_id):
+        sample_variant = db(db.SAMPLE_VARIANT.id==sample_variant_id).select().first()
+        if sample_variant:
+            return sample_variant.VARIANT_id
+        else:
+            return None
+    
+    links = [(lambda row: A('Variant', _title=T('Edit Variant')
+                                    ,_class='button btn btn-default btn-secondary btn-link btn-sm'
+                                    ,_href=URL("variant","variant_edit" ,args=[variant_id_of(row[field_id])]
+                                               ,vars=dict(form_head_indietro='variants_of_sample', id_indietro=sample_id))
+                                    ,_target="blank"
+                                    ,_name='btn_variant_edit') if auth.has_permission('view', 'VARIANT') else ''
+             )
+            ,dict(header=' ',
+                   body=(
+                         lambda row: A('', _title=T('Edit')
+                            ,_class='button btn btn-default btn-secondary btn-sm icon pen icon-pen glyphicon glyphicon-pencil'
+                            ,_href=URL("sample_variant","edit", args=[row[field_id]]
+                                       ,vars=dict(form_head_indietro='variants_of_sample'))
+                            ,_name='btn_sample_variant_edit') if is_manage() else ''
+                        )
+                  )
+            ]
+
+
+    exportclasses=dict(
+        csv_with_hidden_cols=False,
+        tsv_with_hidden_cols=False
+                       )
+#        csv=(ExporterCSV, 'CSV'),
+#        xml=(ExporterXML, 'XML'),
+#        html=(ExporterHTML, 'HTML'),
+#        tsv=(ExporterTSV, 'TSV (Excel compatible)')
+
+
+    form = SQLFORM.grid(query=query
+                        ,fields=fields
+                        ,field_id = field_id
+                        #,headers=headers
+                        ,links = links
+                        ,orderby=default_sort_order
+                        ,create=False
+                        ,deletable=False
+                        ,editable=False
+                        ,details=False
+                        ,showbuttontext=False
+                        ,maxtextlength=50
+                        ,searchable=True
+                        ,paginate=20
+                        ,exportclasses=exportclasses
+                        ,csv = True
+                        ,buttons_placement = 'left'
+                        ,onvalidation=validation_SAMPLE_VARIANT
+                        ,user_signature=False
+                        ,formstyle="bootstrap4_inline"
+                 #table3cols,table2cols,divs,ul,bootstrap,bootstrap3_stacked,bootstrap3_inline,bootstrap4_stacked,bootstrap4_inline,inline
+                        ,args=request.args[:1]
+                       )
+
+    if db(query).count() == 0:
+        form.element('.web2py_table', replace=None)  # Delete "no records found" text
+
+
+    form.element('.web2py_counter', replace=None) # toglie numero records trovati
+
+    #paginazione = form.element('.web2py_paginator')
+    #form.element('.web2py_paginator', _style="visibility: hidden")
+    #addRecordPaginazione = TABLE(TR(TD(add_record, _width='3%'),TD(paginazione,_width='97%')))
+    #form[0].insert(-1,addRecordPaginazione)
+
+    return response.render(default_subview, dict(form_head=form_head,form=form))
+
+
+@auth.requires_permission('view', 'SAMPLE_VARIANT')
+def samples_of_variant():
+    variant_id = request.args(0) or None
+
+    if variant_id == None:
+        return response.render(default_subview, dict(form_head='',form=''))
+
+    form_head = ''
+    form_head_indietro = (request.vars['form_head_indietro']) if (request.vars['form_head_indietro']) else ''
+
+    #query=(db.SAMPLE_VARIANT.VARIANT_id == variant_id)
+
+    query = ((db.SAMPLE_VARIANT.VARIANT_id == variant_id) & (db.SAMPLE.id == db.SAMPLE_VARIANT.SAMPLE_id))
+
+    default_sort_order=[~db.SAMPLE.date_sample,db.SAMPLE.sample]
+
+    field_id = db.SAMPLE_VARIANT.id
+
+    #per velocizzare l'output altrimenti troppo lento
+    db.SAMPLE_VARIANT.SAMPLE_id.requires=IS_NOT_EMPTY()
+    db.SAMPLE_VARIANT.VARIANT_id.requires=IS_NOT_EMPTY()
+    
+    db.SAMPLE_VARIANT.id.writable = False
+    db.SAMPLE_VARIANT.id.readable = False
+
+    db.SAMPLE_VARIANT.VARIANT_id.default = variant_id
+    db.SAMPLE_VARIANT.VARIANT_id.writable = False
+    db.SAMPLE_VARIANT.VARIANT_id.readable = False
+
+    #nascondo campi SAMPLE non visualizzati in lista
+    db.SAMPLE.id.readable = False
+    
+    fields= (db.SAMPLE.sample
+            ,db.SAMPLE.date_sample
+            ,db.SAMPLE.fl_sample_type
+            ,db.SAMPLE.TISSUE_TYPE_id
+            ,db.SAMPLE.fl_sex
+            ,db.SAMPLE_VARIANT.AF
+            ,db.SAMPLE_VARIANT.GT
+            )
+
+    def sample_id_of(sample_variant_id):
+        sample_variant = db(db.SAMPLE_VARIANT.id==sample_variant_id).select().first()
+        if sample_variant:
+            return sample_variant.SAMPLE_id
+        else:
+            return None
+
+    links = [(lambda row: A('Sample', _title=T('Edit Sample')
+                                    ,_class='button btn btn-default btn-secondary btn-link btn-sm'
+                                    ,_href=URL("sample","edit" ,args=[sample_id_of(row[field_id])]
+                                               ,vars=dict(form_head_indietro='samples_of_variant', id_indietro=variant_id))
+                                    ,_target="blank"
+                                    ,_name='btn_sample_edit') if auth.has_permission('view', 'SAMPLE') else ''
+             )
+            ,dict(header=' ',
+                   body=(
+                         lambda row: A('', _title=T('Edit')
+                            ,_class='button btn btn-default btn-secondary btn-sm icon pen icon-pen glyphicon glyphicon-pencil'
+                            ,_href=URL("sample_variant","edit", args=[row[field_id]]
+                                       ,vars=dict(form_head_indietro='samples_of_variant'))
+                            ,_name='btn_sample_variant_edit') if is_manage() else ''
+                        )
+                  )
+            ]
+
+
+    exportclasses=dict(
+        csv_with_hidden_cols=False,
+        tsv_with_hidden_cols=False
+                       )
+#        csv=(ExporterCSV, 'CSV'),
+#        xml=(ExporterXML, 'XML'),
+#        html=(ExporterHTML, 'HTML'),
+#        tsv=(ExporterTSV, 'TSV (Excel compatible)')
+
+
+    form = SQLFORM.grid(query=query
+                        ,fields=fields
+                        ,field_id = field_id
+                        #,headers=headers
+                        ,links = links
+                        ,orderby=default_sort_order
+                        ,create=False
+                        ,deletable=False
+                        ,editable=False
+                        ,details=False
+                        ,showbuttontext=False
+                        ,maxtextlength=50
+                        ,searchable=True
+                        ,paginate=20
+                        ,exportclasses=exportclasses
+                        ,csv = True
+                        ,buttons_placement = 'left'
+                        ,onvalidation=validation_SAMPLE_VARIANT
+                        ,user_signature=False
+                        ,formstyle="bootstrap4_inline"
+                 #table3cols,table2cols,divs,ul,bootstrap,bootstrap3_stacked,bootstrap3_inline,bootstrap4_stacked,bootstrap4_inline,inline
+                        ,args=request.args[:1]
+                       )
+
+    if db(query).count() == 0:
+        form.element('.web2py_table', replace=None)  # Delete "no records found" text
+
+
+    #form.element('.web2py_counter', replace=None) # toglie numero records trovati
+
+    return response.render(default_view, dict(form_head=form_head,form=form))
+
+
+def form(record,sample_id,variant_id):
+#se variant_id è valorizzato, lo metto in sola lettura, idem se è valorizzato sample_id
+
+    db.SAMPLE_VARIANT.id.writable = False
+    db.SAMPLE_VARIANT.id.readable = False
+
+    db.SAMPLE_VARIANT.SAMPLE_id.readable = True
+    db.SAMPLE_VARIANT.VARIANT_id.readable = True
+
+    if sample_id:
+        db.SAMPLE_VARIANT.SAMPLE_id.default = sample_id
+        db.SAMPLE_VARIANT.SAMPLE_id.writable = False
+        db.SAMPLE_VARIANT.SAMPLE_id.represent = lambda value,row: string_widget(db.SAMPLE_VARIANT.SAMPLE_id,(db.SAMPLE._format % value), _readonly='readonly') 
+    else:
+        db.SAMPLE_VARIANT.SAMPLE_id.requires=IS_EMPTY_OR(IS_IN_DB(db, 'SAMPLE.id', '%(sample)s'), null='')
+    
+    if variant_id:
+        db.SAMPLE_VARIANT.VARIANT_id.default = variant_id
+        db.SAMPLE_VARIANT.VARIANT_id.writable = False
+        db.SAMPLE_VARIANT.VARIANT_id.represent = lambda value,row: string_widget(db.SAMPLE_VARIANT.VARIANT_id,(db.VARIANT._format % value), _readonly='readonly')
+    else:
+        db.SAMPLE_VARIANT.VARIANT_id.requires=IS_EMPTY_OR(IS_IN_DB(db, 'VARIANT.id', '%(id_hg19)s'), null='')
+
+
+    form=SQLFORM(db.SAMPLE_VARIANT
+                ,record
+                ,readonly=False
+                ,deletable=True
+                ,formstyle="bootstrap4_inline"
+                 #table3cols,table2cols,divs,ul,bootstrap,bootstrap3_stacked,bootstrap3_inline,bootstrap4_stacked,bootstrap4_inline,inline
+                ,args=request.args[:1]
+                )
+
+    if form.process(onvalidation=validation_SAMPLE_VARIANT).accepted:
+        if record:
+            response.flash = T('variazione effettuata')
+
+    """ tolgo visualizzazione attributi del sample_variant
+    iframe_attribute = IFRAME(T('Attribute')
+                              ,_title=T('Attribute')
+                              ,_src=URL('sample_variant','attribute_list',args=[record.id])
+                              ,_style="padding-left:0px; height:100%; width:100%"
+                              ,_frameborder='0',_scrolling='yes'
+                              ,_onload='resize_iframe(this)'
+                              ,_id='iframe_sample_variant_attribute'
+                           ) if record else ''
+    """
+    iframe_attribute =''
+    return dict(form=form,iframe_attribute=iframe_attribute)
+
+@auth.requires_permission('manage', 'SAMPLE_VARIANT')
+def edit():
+    sample_variant_id = request.args(0) or None
+    if sample_variant_id=='None':
+        return response.render(default_subview, dict(form_head='',form=''))
+
+    form_head_indietro = (request.vars['form_head_indietro']) if (request.vars['form_head_indietro']) else ''
+
+    record = db.SAMPLE_VARIANT(db.SAMPLE_VARIANT.id==sample_variant_id) or None
+
+    response.title = T('Edit Variant - Sample')
+
+    url_indietro = ''
+    sample_id = None
+    variant_id = None
+
+    if form_head_indietro :
+        if form_head_indietro == "variants_of_sample":
+            response.title = T('Edit Sample\'s Variants') 
+            sample_id = record.SAMPLE_id
+            url_indietro= URL('sample_variant',form_head_indietro,args=record.SAMPLE_id)
+        elif form_head_indietro == "samples_of_variant":
+            response.title = T('Edit Variant\'s Samples')
+            variant_id = record.VARIANT_id
+            url_indietro=URL('sample_variant',form_head_indietro,args=record.VARIANT_id)
+        else:
+            url_indietro=URL('sample_variant',form_head_indietro)
+
+    form_head=head_title(response.title,url_indietro)
+    
+    dict_forms = form(record,variant_id, sample_id)
+    dict_forms.update(form_head=form_head)
+    #return response.render(default_subview, dict_forms)
+    return dict_forms
+
+
+#####################################
+####   SAMPLE VARIANT ATTRIBUTE  ####
+#####################################
+""" disattivato 
+
+@auth.requires_permission('view', 'SAMPLE_VARIANT')
+def attribute_list():
+    sample_variant_id = request.args(0) or None
+
+    form_head = ''
+
+    if sample_variant_id == None:
+        return response.render(default_subview, dict(form_head='',form=''))
+    else:
+        form_head_indietro = (request.vars['form_head_indietro']) if (request.vars['form_head_indietro']) else ''
+        sample_variant = db(db.SAMPLE_VARIANT.id==sample_variant_id).select().first()
+        if sample_variant:
+            sample = db(db.SAMPLE.id==sample_variant.SAMPLE_id).select().first()
+            variant = db(db.VARIANT.id==sample_variant.VARIANT_id).select().first()
+            response.title = T('Attribute of : ')+ sample.sample + ' ' + variant.id_hg19
+            if not form_head_indietro :
+                form_head=head_title(response.title)
+            elif form_head_indietro == "list":
+                form_head_indietro2 = (request.vars['form_head_indietro2']) if (request.vars['form_head_indietro2']) else ''
+                form_head=head_title(response.title,URL('sample_variant',form_head_indietro,args=sample_variant.SAMPLE_id, vars=dict(form_head_indietro=form_head_indietro2)))
+            else:
+                form_head=head_title(response.title,URL('sample_variant',form_head_indietro, vars=dict(form_head_indietro=form_head_indietro2)))
+
+
+    db.SAMPLE_VARIANT_ATTRIBUTE.id.writable = False
+    db.SAMPLE_VARIANT_ATTRIBUTE.id.readable = False
+
+    db.SAMPLE_VARIANT_ATTRIBUTE.SAMPLE_VARIANT_id.default = sample_variant_id
+    db.SAMPLE_VARIANT_ATTRIBUTE.SAMPLE_VARIANT_id.writable = False
+    db.SAMPLE_VARIANT_ATTRIBUTE.SAMPLE_VARIANT_id.readable = False
+
+    query=(db.SAMPLE_VARIANT_ATTRIBUTE.SAMPLE_VARIANT_id == sample_variant_id)
+
+    fields= (db.SAMPLE_VARIANT_ATTRIBUTE.SAMPLE_VARIANT_id
+            ,db.SAMPLE_VARIANT_ATTRIBUTE.attribute_name
+            ,db.SAMPLE_VARIANT_ATTRIBUTE.attribute_value
+            )
+    links = [(lambda row: A('', _title=T('Dettaglio')
+                            ,_class='button btn btn-default btn-secondary btn-sm icon pen icon-pen glyphicon glyphicon-pencil'
+                            ,_href=URL("sample_variant","attribute_edit",args=[row.id])
+                            ,_name='btn_sample_variant_attribute_Edit') if is_manage() else '')
+            ]
+
+    default_sort_order=[db.SAMPLE_VARIANT_ATTRIBUTE.attribute_name]
+
+    form = SQLFORM.grid(query=query
+                        ,fields=fields
+                        #,headers=headers
+                        ,links = links
+                        ,orderby=default_sort_order
+                        ,create=False
+                        ,deletable=is_manage()
+                        ,editable=False
+                        ,details=False
+                        ,showbuttontext=False
+                        ,maxtextlength=50
+                        ,searchable=False
+                        ,paginate=9
+                        ,csv = False
+                        ,buttons_placement = 'left'
+                        ,onvalidation=validation_SAMPLE_VARIANT_ATTRIBUTE
+                        ,user_signature=False
+                        #,formstyle="bootstrap4_inline"
+                 #table3cols,table2cols,divs,ul,bootstrap,bootstrap3_stacked,bootstrap3_inline,bootstrap4_stacked,bootstrap4_inline,inline
+                        ,args=request.args[:1]
+                       )
+
+    if db(query).count() == 0:
+        form.element('.web2py_table', replace=None)  # Delete "no records found" text
+
+
+    # Add new record con form personalizzata
+    add_record = A(' ' , _title=T('Add Attribute')
+                       ,_class='button btn btn-default btn-secondary btn-sm icon plus icon-plus glyphicon glyphicon-plus'
+                       ,_href=URL("sample_variant","attribute_insert",args=[sample_variant_id])
+                       ,_name='btn_sample_variant_attribute_Add'
+                       ,_id ='btn_sample_variant_attribute_Add'
+                  )
+
+    form[0].insert(-1,add_record) if is_manage() else ''
+
+    form.element('.web2py_counter', replace=None) # toglie numero records trovati
+
+    #paginazione = form.element('.web2py_paginator')
+    #form.element('.web2py_paginator', _style="visibility: hidden")
+    #addRecordPaginazione = TABLE(TR(TD(add_record, _width='3%'),TD(paginazione,_width='97%')))
+    #form[0].insert(-1,addRecordPaginazione)
+
+    return response.render(default_subview, dict(form_head=form_head,form=form))
+
+
+def attribute_form(record,sample_variant_id):
+
+    form_head = FORM(DIV(A(' ' , _title=T('Back')
+                               ,_class='button btn btn-default btn-secondary btn-sm icon arrowleft icon-arrowleft glyphicon glyphicon-arrow-left'
+                               ,_href=URL('sample_variant','attribute_list',args=[sample_variant_id])
+                          )
+                        ))
+
+    db.SAMPLE_VARIANT_ATTRIBUTE.id.writable = False
+    db.SAMPLE_VARIANT_ATTRIBUTE.id.readable = False
+
+    db.SAMPLE_VARIANT_ATTRIBUTE.SAMPLE_VARIANT_id.default = sample_variant_id
+    db.SAMPLE_VARIANT_ATTRIBUTE.SAMPLE_VARIANT_id.writable = False
+    db.SAMPLE_VARIANT_ATTRIBUTE.SAMPLE_VARIANT_id.readable = False
+
+    form=SQLFORM(db.SAMPLE_VARIANT_ATTRIBUTE
+                ,record
+                ,readonly=False
+                ,deletable=False #si può cancellare solo dalla lista
+                ,formstyle="bootstrap4_inline"
+                 #table3cols,table2cols,divs,ul,bootstrap,bootstrap3_stacked,bootstrap3_inline,bootstrap4_stacked,bootstrap4_inline,inline
+                ,args=request.args[:1]
+                ,formname = "sample_variant_attribute_form"
+                )
+
+    #form.custom.widget['HP_id'][0].add_class('form-control')
+
+    if form.process(onvalidation=validation_SAMPLE_VARIANT_ATTRIBUTE).accepted:
+        if form.deleted:
+            session.flash = T('cancellazione effettuata')
+            redirect(URL('sample_variant','attribute_list',args=[sample_variant_id] , vars=dict(form_head_indietro='list')))
+        else:
+            if record:
+                response.flash = T('variazione effettuata')
+                redirect(URL('sample_variant','attribute_list',args=[sample_variant_id] , vars=dict(form_head_indietro='list')))
+            else: # sono in inserimento
+                redirect(URL('sample_variant','attribute_list',args=[sample_variant_id] , vars=dict(form_head_indietro='list')))
+
+    return dict(form_head=form_head,form=form)
+
+@auth.requires_permission('manage', 'SAMPLE_VARIANT')
+def attribute_edit():
+    sample_variant_attribute_id = request.args(0) or None
+    if sample_variant_attribute_id=='None':
+        return response.render(default_subview, dict(form_head='',form=''))
+
+    record = db.SAMPLE_VARIANT_ATTRIBUTE(db.SAMPLE_VARIANT_ATTRIBUTE.id==sample_variant_attribute_id) or None
+
+    dict_forms = attribute_form(record,record.SAMPLE_VARIANT_id)
+
+    return response.render(default_subview, dict_forms)
+
+
+@auth.requires_permission('manage', 'SAMPLE_VARIANT')
+def attribute_insert():
+    sample_variant_attribute_id = request.args(0) or None
+    record = None
+
+    if sample_variant_attribute_id is None:
+        dict_forms = dict(form_head='',form='')
+    else:
+        dict_forms = attribute_form(record,sample_variant_attribute_id)
+
+    return response.render(default_subview, dict_forms)
+
+"""

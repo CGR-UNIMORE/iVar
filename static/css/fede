@@ -1,0 +1,19 @@
+/** Fede 15/8/2019 aggiunto per menu verde sfumato */
+.navbar-ivar {
+    background-image:linear-gradient(to bottom,#3f784c 0,#222 100%);
+    padding:0px 15px;
+}
+.navbar-ivar a {
+}
+.navbar-ivar li {
+    padding:1px 8px;
+}
+/** Fede 15/8/2019 modificato colori principali in verde anzichè blu del boostrap.min.css **/
+.text-success {color:#1d7835!important; }
+a{color:#1d7835;}
+a:hover{color:#145124;}
+.btn-link{color:#1d7835;}
+.btn-link:hover{color:#145124;}
+.btn-success{background-color:#1d7835;}
+.btn-outline-success{color:#1d7835;border-color:#145124;}
+.btn-outline-success:hover{background-color:#1d7835;border-color:#145124}

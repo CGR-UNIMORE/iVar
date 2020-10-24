@@ -1,0 +1,5 @@
+##fileformat=VCFv4.1
+##fileDate=%Y%m%d
+##fileUTCtime=%Y-%m-%dT%H:%M:%S
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+chr13	32906602	.	G	GA	.	.	.
