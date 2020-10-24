@@ -1,0 +1,229 @@
+timestamp: 2020-10-24T10:18:35.528567
+CREATE TABLE `auth_user`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `first_name` VARCHAR(128),
+    `last_name` VARCHAR(128),
+    `email` VARCHAR(512),
+    `password` VARCHAR(512),
+    `registration_key` VARCHAR(512),
+    `reset_password_key` VARCHAR(512),
+    `registration_id` VARCHAR(512),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+timestamp: 2020-10-24T10:19:06.437881
+CREATE TABLE `auth_user`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `first_name` VARCHAR(128),
+    `last_name` VARCHAR(128),
+    `email` VARCHAR(512),
+    `password` VARCHAR(512),
+    `registration_key` VARCHAR(512),
+    `reset_password_key` VARCHAR(512),
+    `registration_id` VARCHAR(512),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+timestamp: 2020-10-24T10:19:41.261048
+CREATE TABLE `auth_user`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `first_name` VARCHAR(128),
+    `last_name` VARCHAR(128),
+    `email` VARCHAR(512),
+    `password` VARCHAR(512),
+    `registration_key` VARCHAR(512),
+    `reset_password_key` VARCHAR(512),
+    `registration_id` VARCHAR(512),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.286215
+CREATE TABLE `auth_group`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `role` VARCHAR(512),
+    `description` LONGTEXT,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.309285
+CREATE TABLE `auth_membership`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `user_id` INT  , INDEX `user_id__idx` (`user_id`), FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
+    `group_id` INT  , INDEX `group_id__idx` (`group_id`), FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`) ON DELETE CASCADE,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.325073
+CREATE TABLE `auth_permission`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `group_id` INT  , INDEX `group_id__idx` (`group_id`), FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`) ON DELETE CASCADE,
+    `name` VARCHAR(512),
+    `table_name` VARCHAR(512),
+    `record_id` INTEGER,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.347285
+CREATE TABLE `auth_event`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `time_stamp` DATETIME,
+    `client_ip` VARCHAR(512),
+    `user_id` INT  , INDEX `user_id__idx` (`user_id`), FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
+    `origin` VARCHAR(512),
+    `description` LONGTEXT,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.371108
+CREATE TABLE `auth_cas`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `user_id` INT  , INDEX `user_id__idx` (`user_id`), FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE,
+    `created_on` DATETIME,
+    `service` VARCHAR(512),
+    `ticket` VARCHAR(512),
+    `renew` CHAR(1),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.403298
+CREATE TABLE `VARIANT`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `gene` VARCHAR(20),
+    `id_hg19` VARCHAR(500),
+    `id_hg38` VARCHAR(500),
+    `classif` VARCHAR(2),
+    `last_check` DATE,
+    `note` LONGTEXT,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.429122
+CREATE TABLE `VARIANT_ATTRIBUTE`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `VARIANT_id` INT  , INDEX `VARIANT_id__idx` (`VARIANT_id`), FOREIGN KEY (`VARIANT_id`) REFERENCES `VARIANT` (`id`) ON DELETE CASCADE,
+    `attribute_name` VARCHAR(250),
+    `attribute_value` VARCHAR(500),
+    `valid_from` DATE,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.536400
+CREATE TABLE `ANNOTATION_TYPE`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `name_type` VARCHAR(50),
+    `char_sep` VARCHAR(2),
+    `sample` VARCHAR(50),
+    `variant_hg19` VARCHAR(50),
+    `variant_hg38` VARCHAR(50),
+    `gene` VARCHAR(10),
+    `classif` VARCHAR(50),
+    `classif_eval` LONGTEXT,
+    `classif_valid_from` VARCHAR(100),
+    `row_filter` LONGTEXT,
+    `break_condition` LONGTEXT,
+    `variant_attribute` LONGTEXT,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.577399
+CREATE TABLE `ANNOTATION_FILE`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `file_upload` VARCHAR(512),
+    `filename_upload` VARCHAR(200),
+    `date_upload` DATETIME,
+    `fl_elaborated` VARCHAR(1),
+    `date_valid_from` DATE,
+    `ANNOTATION_TYPE_id` INT  , INDEX `ANNOTATION_TYPE_id__idx` (`ANNOTATION_TYPE_id`), FOREIGN KEY (`ANNOTATION_TYPE_id`) REFERENCES `ANNOTATION_TYPE` (`id`) ON DELETE CASCADE,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.601440
+CREATE TABLE `PANEL`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `name_panel` VARCHAR(50),
+    `gene` VARCHAR(500),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.614850
+CREATE TABLE `VIRTUAL_PANEL`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `name_virtual_panel` VARCHAR(50),
+    `gene` VARCHAR(500),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.630664
+CREATE TABLE `VCF_TYPE`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `name_type` VARCHAR(50),
+    `variant` VARCHAR(50),
+    `row_filter` LONGTEXT,
+    `sample_attribute` LONGTEXT,
+    `variant_attribute` LONGTEXT,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.659260
+CREATE TABLE `VCF_FILE`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `file_upload` VARCHAR(512),
+    `filename_upload` VARCHAR(200),
+    `date_upload` DATETIME,
+    `fl_elaborated` VARCHAR(1),
+    `VCF_TYPE_id` INT  , INDEX `VCF_TYPE_id__idx` (`VCF_TYPE_id`), FOREIGN KEY (`VCF_TYPE_id`) REFERENCES `VCF_TYPE` (`id`) ON DELETE CASCADE,
+    `PANEL_id` INT  , INDEX `PANEL_id__idx` (`PANEL_id`), FOREIGN KEY (`PANEL_id`) REFERENCES `PANEL` (`id`) ON DELETE CASCADE,
+    `VIRTUAL_PANEL_id` INT  , INDEX `VIRTUAL_PANEL_id__idx` (`VIRTUAL_PANEL_id`), FOREIGN KEY (`VIRTUAL_PANEL_id`) REFERENCES `VIRTUAL_PANEL` (`id`) ON DELETE CASCADE,
+    `date_vcf` DATE,
+    `hg` VARCHAR(10),
+    `samples` LONGTEXT,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.690937
+CREATE TABLE `TISSUE_TYPE`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `tissue_type` VARCHAR(50),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.706478
+CREATE TABLE `SAMPLE`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `sample` VARCHAR(50),
+    `date_sample` DATE,
+    `fl_sample_type` VARCHAR(1),
+    `TISSUE_TYPE_id` INT  , INDEX `TISSUE_TYPE_id__idx` (`TISSUE_TYPE_id`), FOREIGN KEY (`TISSUE_TYPE_id`) REFERENCES `TISSUE_TYPE` (`id`) ON DELETE CASCADE,
+    `fl_sex` VARCHAR(1),
+    `VCF_FILE_ids` LONGTEXT,
+    `TEXT_FILE_ids` LONGTEXT,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.735301
+CREATE TABLE `SAMPLE_VARIANT`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `SAMPLE_id` INT  , INDEX `SAMPLE_id__idx` (`SAMPLE_id`), FOREIGN KEY (`SAMPLE_id`) REFERENCES `SAMPLE` (`id`) ON DELETE CASCADE,
+    `VARIANT_id` INT  , INDEX `VARIANT_id__idx` (`VARIANT_id`), FOREIGN KEY (`VARIANT_id`) REFERENCES `VARIANT` (`id`) ON DELETE CASCADE,
+    `AF` VARCHAR(20),
+    `GT` VARCHAR(20),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.755213
+CREATE TABLE `SAMPLE_VARIANT_ATTRIBUTE`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `SAMPLE_VARIANT_id` INT  , INDEX `SAMPLE_VARIANT_id__idx` (`SAMPLE_VARIANT_id`), FOREIGN KEY (`SAMPLE_VARIANT_id`) REFERENCES `SAMPLE_VARIANT` (`id`) ON DELETE CASCADE,
+    `attribute_name` VARCHAR(250),
+    `attribute_value` VARCHAR(250),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
+timestamp: 2020-10-24T10:19:41.772000
+CREATE TABLE `SEARCH_CRITERIA`(
+    `id` INT AUTO_INCREMENT NOT NULL,
+    `search_name` VARCHAR(50),
+    `variant` LONGTEXT,
+    `attribute` LONGTEXT,
+    `attribute_prev` LONGTEXT,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB CHARACTER SET utf8;
+faked!
