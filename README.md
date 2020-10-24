@@ -2,7 +2,7 @@
 iVar - DataBase of Genomics Variants
 
 ** INSTALL **
-<code>
+
 Install MariaDB:
    apt -y install mariadb-server mariadb-client
 
@@ -34,4 +34,3 @@ Create first app config:
   [db]
   uri       = mysql://ivar:PASSWORD@localhost/ivar
 
-</code>
