@@ -15,7 +15,7 @@ names = localhost:*, 127.0.0.1:*, *:*, *
 ; db configuration
 [db]
 uri       = mysql://ivar:PASSWORD@localhost/ivar
-migrate   = True
+migrate   = false
 pool_size = 5
 
 [vcf_file]
