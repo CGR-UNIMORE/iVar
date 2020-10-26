@@ -4,7 +4,7 @@ iVar - DataBase of Genomics Variants
 ** INSTALL **
 
 Install MariaDB:
-   apt -y install mariadb-server mariadb-client
+	apt -y install mariadb-server mariadb-client
 
 Create empty database iVar in mariadb, substituting PASSWORD with a
 "very secure password"
