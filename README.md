@@ -34,6 +34,12 @@ Grant permissions to the ivar user, substituting PASSWORD with a
    grant all on ivar.* to 'ivar'@'localhost' identified by 'PASSWORD';
    flush privileges;
 ```
+#### Connecto to web2py console: ####
+
+#### Download and Upload iVar app: ####
+
+```
+   git clone http
 
 Create first app config:
 ```
