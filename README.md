@@ -1,12 +1,14 @@
 # iVar
 iVar - DataBase of Genomics Variants
 
-** INSTALL **
+== INSTALL==
 
-Install web2py:
+===Prerequisites:====
+
+==Install web2py:==
    http://web2py.com/
 
-Install VCF Python Library PyVCF: 
+==Install VCF Python Library PyVCF:==
    See: https://pyvcf.readthedocs.io/en/latest/
 ```
    apt install python-pip
