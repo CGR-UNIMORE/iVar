@@ -4,8 +4,9 @@ iVar - DataBase of Genomics Variants
 ** INSTALL **
 
 Install MariaDB:
-	`apt -y install mariadb-server mariadb-client`
-
+```
+apt -y install mariadb-server mariadb-client
+```
 Create empty database iVar in mariadb, substituting PASSWORD with a
 "very secure password"
 ```
@@ -28,11 +29,12 @@ Install VCF Python Library PyVCF:
    python setup.py install
 ```
 Create first app config:
-   `cp iVar/private/appconfig.ini.example iVar/private/appconfig.ini`
-
-   And edit it changing PASSWORD with the previusly chosen MariaDB "very secure password"  :)
-   ```
-  ; db configuration
-  [db]
-  uri       = mysql://ivar:PASSWORD@localhost/ivar
+```
+cp iVar/private/appconfig.ini.example iVar/private/appconfig.ini`
+```
+And edit it changing PASSWORD with the previusly chosen MariaDB "very secure password"  :)
+```
+; db configuration
+[db]
+uri       = mysql://ivar:PASSWORD@localhost/ivar
 ```
