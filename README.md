@@ -22,10 +22,12 @@ Install MariaDB:
 ```
    apt -y install mariadb-server mariadb-client
 ```
-Create database iVar in mariadb using the provided sql schema:
+Create database iVar in mariadb using the provided sql schema from the scripts folder:
 ```
-   mysql -u root -p < $IVAR_DIR/scripts/ivar-init-db.sql
+   mysql -u root -p < ivar-init-db.sql
 ```
+
+SPOSTARE A DOPO CHE HAI LO SCRIPT
 
 Grant permissions to the ivar user, substituting PASSWORD with a
 "very secure password"
@@ -36,12 +38,14 @@ Grant permissions to the ivar user, substituting PASSWORD with a
 ```
 #### Connecto to web2py console: ####
 
-#### Download and Upload iVar app: ####
+Start web2py
 
-```
-   git clone http
+Go to admin console
 
-Create first app config:
+Upload the latest iVar.w2p file from the application folder
+
+
+Create first app config: (we assume you called the application "iVar") I
 ```
    cp iVar/private/appconfig.ini.example iVar/private/appconfig.ini`
 ```
