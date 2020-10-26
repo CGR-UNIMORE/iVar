@@ -4,3 +4,7 @@ database/*
 uploads/ANNOTATION_FILE.file_upload/*
 uploads/VCF_FILE.file_upload/*
 compiled/*
+progress.log
+routes.example.py
+sessions/*
+errors/*
