@@ -27,8 +27,6 @@ Create database iVar in mariadb using the provided sql schema from the scripts f
    mysql -u root -p < ivar-init-db.sql
 ```
 
-SPOSTARE A DOPO CHE HAI LO SCRIPT
-
 Grant permissions to the ivar user, substituting PASSWORD with a
 "very secure password"
 ```
@@ -42,7 +40,7 @@ Start web2py
 
 Go to admin console
 
-Upload the latest iVar.w2p file from the application folder
+Upload the latest web2py.app.iVar.w2p file from the app folder
 
 
 Create first app config: (we assume you called the application "iVar") I
@@ -55,3 +53,8 @@ And edit it changing PASSWORD with the previusly chosen MariaDB "very secure pas
    [db]
    uri       = mysql://ivar:PASSWORD@localhost/ivar
 ```
+#### Initial iVar Credentials: ####
+
+Username: `admin@example.com`
+
+Password: `admin`
