@@ -5,7 +5,7 @@ iVar - DataBase of Genomics Variants
 
 ### Prerequisites: ###
 
-iVar has been tested on *Ubuntu 18.04.05 live server amd64 (x86_64, or 64 bits).
+iVar has been tested on **Ubuntu 18.04.05 live server** for the amd64 (x86_64, or 64 bits) architecture.
 
 If you use a different distribution, your mileage may vary.
 
