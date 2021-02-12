@@ -5,85 +5,40 @@ iVar - DataBase of Genomics Variants
 
 ### Prerequisites: ###
 
-#### Create user web2py ####
-```
-adduser web2py
-```
-Following instructions
+iVar has been tested on *Ubuntu 18.04.05 live server amd64 (x86_64, or 64 bits).
 
-#### Install python 2.7 ####
+If you use a different distribution, your mileage may vary.
 
-#### Install web2py (for python 2.7): ####
-```
-cd /home/web2py/
-```
-   http://web2py.com/
-
-Give permissions
-```
-chown -R web2py: web2py
-```
-
-#### Install VCF Python Library PyVCF: ####
-   See: https://pyvcf.readthedocs.io/en/latest/
-```
-   cd ~
-   sudo apt install python-pip
-   sudo pip install setuptools
-   sudo git clone https://github.com/jamescasbon/PyVCF.git
-   sudo cd PyVCF/
-   sudo python setup.py install
-```
-
-#### Certificati ####
-Generare o utilizzare dei certificati per il proprio server 
-
-#### Connect to web2py console: ####
-
-Start web2py
+Once the Ubuntu installation is complete, you may use the **iVar/scripts/install-ivar.sh** script to install iVar.
 
 
-Go to admin console
+#### Web2py Frameworks ####
 
-Upload the latest web2py.app.iVar.w2p file from the app folder
+web2py iVar is installed with a self-signed certificate, that allows connection 
+without warnings only from:
 
+http://localhost:9000/
+http://ivar.local:9000/
+http://127.0.0.1:9000/
 
-Create first app config: (we assume you called the application "iVar") I
-```
-   cp iVar/private/appconfig.ini.example iVar/private/appconfig.ini
-```
-And edit it changing PASSWORD with the previusly chosen MariaDB "very secure password"  :)
-```
-   ; db configuration
-   [db]
-   uri       = mysql://ivar:PASSWORD@localhost/ivar
-```
+You may use another URL similar to those, but you will get a certificate
+warning or error. It is safe to ignore it if you are on the same secure 
+local network as the iVar server.
 
-### Install MariaDB: ###
-```
-   sudo apt -y install mariadb-server mariadb-client
-```
-Create database iVar in mariadb using the provided sql schema from the scripts folder:
+Initial admin password is the one you provided during the installation.
 
-```
-   mysql -u root -p < ivar-init-db.sql
-```
+#### iVar Application ####
 
-NOTA: ottengo il seguente errore
-   -> ERROR 1146 (42S02) at line 490: Table 'ivar.SAMPLE_VARIANT_old' doesn't exist -> Eliminare le suddette righe dall'sql di init
+URLs:
 
-   ERROR 1071 (42000) at line 502: Specified key was too long; max key length is 767 bytes
-
-Grant permissions to the ivar user, substituting PASSWORD with a
-"very secure password"
-```
-   mysql -u root (-p, if needed)
-   grant all on ivar.* to 'ivar'@'localhost' identified by 'PASSWORD';
-   flush privileges;
-```
+http://localhost:9000/iVar/
+http://ivar.local:9000/iVar/
+http://127.0.0.1:9000/iVar/
 
 #### Initial iVar Credentials: ####
 
 Username: `admin@example.com`
 
 Password: `admin`
+
+we suggest to change it as soon as possible in the user `admin` menu
