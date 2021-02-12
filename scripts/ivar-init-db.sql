@@ -485,6 +485,25 @@ ALTER TABLE `SAMPLE_VARIANT_ATTRIBUTE`
   ADD KEY `SAMPLE_VARIANT__fk_idx` (`sample_variant_id`);
 
 --
+-- Indexes for table `SAMPLE_VARIANT_old`
+--
+ALTER TABLE `SAMPLE_VARIANT_old`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `GT_idx` (`GT`),
+  ADD KEY `AF_idx` (`AF`),
+  ADD KEY `VARIANT_id__idx` (`VARIANT_id`),
+  ADD KEY `SAMPLE_id__idx` (`SAMPLE_id`);
+
+--
+-- Indexes for table `SAMPLE_old`
+--
+ALTER TABLE `SAMPLE_old`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `SAMPLE` (`sample`),
+  ADD KEY `TISSUE_TYPE_id__idx` (`TISSUE_TYPE_id`),
+  ADD KEY `data_sample__idx` (`date_sample`,`sample`);
+
+--
 -- Indexes for table `SEARCH_CRITERIA`
 --
 ALTER TABLE `SEARCH_CRITERIA`
@@ -524,6 +543,12 @@ ALTER TABLE `VCF_FILE`
   ADD KEY `PANEL_id__idx` (`PANEL_id`),
   ADD KEY `FILENAME_UPLOAD_idx` (`filename_upload`),
   ADD KEY `VIRTUAL_PANEL_id__idx` (`VIRTUAL_PANEL_id`);
+
+--
+-- Indexes for table `VCF_FILE_INFO`
+--
+ALTER TABLE `VCF_FILE_INFO`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `VCF_TYPE`
@@ -613,6 +638,16 @@ ALTER TABLE `SAMPLE_VARIANT`
 ALTER TABLE `SAMPLE_VARIANT_ATTRIBUTE`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT for table `SAMPLE_VARIANT_old`
+--
+ALTER TABLE `SAMPLE_VARIANT_old`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `SAMPLE_old`
+--
+ALTER TABLE `SAMPLE_old`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT for table `SEARCH_CRITERIA`
 --
 ALTER TABLE `SEARCH_CRITERIA`
@@ -637,6 +672,11 @@ ALTER TABLE `VARIANT_ATTRIBUTE`
 --
 ALTER TABLE `VCF_FILE`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `VCF_FILE_INFO`
+--
+ALTER TABLE `VCF_FILE_INFO`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Tabella contenente le info dei VCF caricati massivamente per recuperare il pregresso. Contengono le info, come il pannello, utili per l’elaborazione. E’ una tabella usata una volta, ma conservata per eventuali controlli successivi al recupero massivo';
 --
 -- AUTO_INCREMENT for table `VCF_TYPE`
 --
@@ -705,6 +745,12 @@ ALTER TABLE `SAMPLE_VARIANT`
 --
 ALTER TABLE `SAMPLE_VARIANT_ATTRIBUTE`
   ADD CONSTRAINT `SAMPLE_VARIANT__fk` FOREIGN KEY (`sample_variant_id`) REFERENCES `SAMPLE_VARIANT` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `SAMPLE_old`
+--
+ALTER TABLE `SAMPLE_old`
+  ADD CONSTRAINT `SAMPLE_old_ibfk_2` FOREIGN KEY (`TISSUE_TYPE_id`) REFERENCES `TISSUE_TYPE` (`id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `VARIANT_ATTRIBUTE`
@@ -789,3 +835,4 @@ INSERT INTO `auth_membership` (`id`, `user_id`, `group_id`) VALUES
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
