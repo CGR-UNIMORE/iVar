@@ -9,7 +9,7 @@ then
 else
 	echo "Ubuntu 18.04 found. I'm happy. :)";
 fi
-echo "Choose a new web2py user password"
+echo "Choose a new iVar user password. It will be used in several places."
 echo -n "(will be displayed on screen): ";
 read PASS
 echo "";
@@ -68,4 +68,18 @@ sed -i -e "s/ivar:PASSWORD@/ivar:${PASS}@/" web2py/applications/iVar/private/app
 
 chown -R web2py: /home/web2py
 
+echo "Launching Web2py";
 ./iVar/scripts/run-web2py.sh &
+echo "********"
+echo "Finished";
+echo "********"
+echo "---- web2py Framework ----"
+echo "You may now want to connect to web2py with your browser.";
+echo "URL to go to:  https://localhost:9000"
+echo "web2py admin password is $PASS";
+echo "---- iVar Application ----"
+echo "iVar username is admin@example.com; password is 'admin' (without the quotes)";
+echo "To go directly to the iVar tools: https://localhost:9000/iVar/"
+echo "(we suggest to change it as soon as possible in the user 'admin' menu"
+
+
