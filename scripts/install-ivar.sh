@@ -31,6 +31,7 @@ fi
 
 apt update
 apt upgrade -y
+apt install -y git
 apt install -y python-minimal
 apt install -y python-pip
 pip install setuptools
@@ -81,5 +82,3 @@ echo "---- iVar Application ----"
 echo "iVar username is admin@example.com; password is 'admin' (without the quotes)";
 echo "To go directly to the iVar tools: https://localhost:9000/iVar/"
 echo "(we suggest to change it as soon as possible in the user 'admin' menu"
-
-
