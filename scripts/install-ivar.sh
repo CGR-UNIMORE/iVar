@@ -11,11 +11,9 @@ else
 fi
 echo "Choose a new web2py user password"
 echo -n "(will be displayed on screen): ";
-# FIXME
-#read PASS
-PASS="pippo";
+read PASS
 echo "";
-useradd  -p U$PASS web2py
+useradd  -p $PASS web2py
 if [ ! -d /home/web2py ]; then
     mkdir /home/web2py
 else
@@ -55,14 +53,19 @@ systemctl restart mariadb
 
 echo "Creating initial iVar Database";
 mysql -u root  < iVar/scripts/ivar-init-db.sql
-echo "grant all on ivar.* to 'ivar'@'localhost' identified by 'IV$PASS'; flush privileges;" | mysql -u root 
-mysqladmin -u root password "R$PASS"
-
-echo "Creating initial app config"
-cp iVar/private/appconfig.ini.example iVar/private/appconfig.ini
-sed -i -e "s/ivar:PASSWORD@/ivar:${PASS}@/" iVar/private/appconfig.ini
+echo "grant all on ivar.* to 'ivar'@'localhost' identified by '$PASS'; flush privileges;" | mysql -u root 
+mysqladmin -u root password "$PASS"
 
 
-# FIXME: alla fine ?
+echo "Installing iVar application";
+sed -i -e "s/PASSWORD/${PASS}/" ./iVar/scripts/run-web2py.sh
+
+tar cpf - iVar | ( cd web2py/applications/ && tar xvpf - )
+
+echo "Creating initial iVar config"
+cp web2py/applications/iVar/private/appconfig.ini.example web2py/applications/iVar/private/appconfig.ini
+sed -i -e "s/ivar:PASSWORD@/ivar:${PASS}@/" web2py/applications/iVar/private/appconfig.ini
+
 chown -R web2py: /home/web2py
 
+./iVar/scripts/run-web2py.sh &
