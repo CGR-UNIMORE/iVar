@@ -526,12 +526,6 @@ ALTER TABLE `VCF_FILE`
   ADD KEY `VIRTUAL_PANEL_id__idx` (`VIRTUAL_PANEL_id`);
 
 --
--- Indexes for table `VCF_FILE_INFO`
---
-ALTER TABLE `VCF_FILE_INFO`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `VCF_TYPE`
 --
 ALTER TABLE `VCF_TYPE`
@@ -643,11 +637,6 @@ ALTER TABLE `VARIANT_ATTRIBUTE`
 --
 ALTER TABLE `VCF_FILE`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `VCF_FILE_INFO`
---
-ALTER TABLE `VCF_FILE_INFO`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Tabella contenente le info dei VCF caricati massivamente per recuperare il pregresso. Contengono le info, come il pannello, utili per l’elaborazione. E’ una tabella usata una volta, ma conservata per eventuali controlli successivi al recupero massivo';
 --
 -- AUTO_INCREMENT for table `VCF_TYPE`
 --
@@ -800,4 +789,3 @@ INSERT INTO `auth_membership` (`id`, `user_id`, `group_id`) VALUES
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
