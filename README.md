@@ -11,6 +11,20 @@ If you use a different distribution, your mileage may vary.
 
 Once the Ubuntu installation is complete, you may use the **[install-ivar.sh](https://raw.githubusercontent.com/CGR-UNIMORE/iVar/main/scripts/install-ivar.sh "script to install iVar")** script (right click to download).
 
+Once you have the script on the ubuntu server, the commands to install are:
+
+```
+chmod +x install-ivar.sh # to execute it
+./install-ivar.sh        
+```
+You will be prompted for a password, which will be used for
+
+The web2py linux user
+
+The web2py admin interface
+
+The ivar database
+
 We strongly suggest to use a **dedicated Ubuntu** (virtual or phisical) for iVar.
 
 A Docker version _MAY_ arrive in the future. (we're looking into it)
