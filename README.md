@@ -9,9 +9,9 @@ iVar has been tested on **Ubuntu 18.04.05 live server** for the amd64 (x86_64, o
 
 If you use a different distribution, your mileage may vary.
 
-Once the Ubuntu installation is complete, you may use the **[install-ivar.sh](https://raw.githubusercontent.com/CGR-UNIMORE/iVar/main/scripts/install-ivar.sh "script to install iVar")** script.
+Once the Ubuntu installation is complete, you may use the **[install-ivar.sh](https://raw.githubusercontent.com/CGR-UNIMORE/iVar/main/scripts/install-ivar.sh "script to install iVar")** script (right click to download).
 
-We **Strongly** suggest to use a dedicated Ubuntu (virtual or phisical) for iVar.
+We strongly suggest to use a **dedicated Ubuntu** (virtual or phisical) for iVar.
 
 A Docker version _MAY_ arrive in the future. (we're looking into it)
 
