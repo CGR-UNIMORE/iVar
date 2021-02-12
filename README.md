@@ -21,7 +21,9 @@ web2py iVar is installed with a self-signed certificate, that allows connection
 without warnings only from:
 
 http://localhost:9000/
+
 http://ivar.local:9000/
+
 http://127.0.0.1:9000/
 
 You may use another URL similar to those, but you will get a certificate
@@ -35,7 +37,9 @@ Initial admin password is the one you provided during the installation.
 URLs:
 
 http://localhost:9000/iVar/
+
 http://ivar.local:9000/iVar/
+
 http://127.0.0.1:9000/iVar/
 
 #### Initial iVar Credentials: ####
