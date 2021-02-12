@@ -11,6 +11,9 @@ If you use a different distribution, your mileage may vary.
 
 Once the Ubuntu installation is complete, you may use the **iVar/scripts/install-ivar.sh** script to install iVar.
 
+We **Strongly** suggest to use a dedicated Ubuntu (virtual or phisical) for iVar.
+
+A Docker version _MAY_ arrive in the future. (we're looking into it)
 
 #### Web2py Frameworks ####
 
