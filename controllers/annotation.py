@@ -179,6 +179,8 @@ def compose_vcf(hg):
 @auth.requires_permission('import', 'ANNOTATION')
 def import_file():
     form_head_indietro = (request.vars['form_head_indietro']) if (request.vars['form_head_indietro']) else None
+    if form_head_indietro == None:
+        form_head_indietro = URL('annotation','list_edit')
 
     response.title = T('Import Text files')
     form_head=head_title(response.title,form_head_indietro)

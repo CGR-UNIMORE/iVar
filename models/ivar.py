@@ -270,6 +270,10 @@ def find_insert_VARIANT(hg,variant,gene,classif,classif_valid_from):
         variant_id = row['id']
         id_hg19 = row['id_hg19']
         id_hg38 = row['id_hg38']
+        if gene == '':
+            gene = row['gene']
+        if classif == '':
+            classif = row['classif']
         update_VARIANT(variant_id,id_hg19,id_hg38,gene,classif,classif_valid_from)
     else:
         if hg=='hg19':
@@ -277,7 +281,7 @@ def find_insert_VARIANT(hg,variant,gene,classif,classif_valid_from):
         if hg=='hg38':
             variant_id = db.VARIANT.insert(id_hg38=variant, gene=gene, classif=classif)
         db.commit()
-        update_VARIANT_ATTRIBUTE_classif(variant_id)
+        update_VARIANT_ATTRIBUTE_classif(variant_id,classif_valid_from, False)
 
     return variant_id
 
@@ -287,11 +291,12 @@ def update_VARIANT(variant_id,id_hg19,id_hg38,gene,classif,classif_valid_from):
     if row:
         row.id_hg19 = id_hg19
         row.id_hg38 = id_hg38
-        row.gene = gene
+        if gene != '':
+            row.gene = gene
         row.classif = classif
         row.update_record()
         db.commit()
-        update_VARIANT_ATTRIBUTE_classif(variant_id,False)
+        update_VARIANT_ATTRIBUTE_classif(variant_id,classif_valid_from)
 
 
 def update_VARIANT_classif(variant_id):
@@ -465,12 +470,12 @@ def insert_VARIANT_ATTRIBUTE(variant_id, attribute,valid_from, accept_empty_valu
 
 
 
-def update_VARIANT_ATTRIBUTE_classif(variant_id,accept_empty_value=False):
+def update_VARIANT_ATTRIBUTE_classif(variant_id,classif_valid_from=None,accept_empty_value=False):
     attribute = dict()
     row = db(db.VARIANT.id == variant_id).select().first()
     if row:
         attribute[DEFAULT_CLASSIF]=row.classif or ''
-        insert_VARIANT_ATTRIBUTE(row.id, attribute,None, accept_empty_value)
+        insert_VARIANT_ATTRIBUTE(row.id, attribute,classif_valid_from, accept_empty_value)
 
 def delete_false_VARIANT_ATTRIBUTE():
      for row in db(db.VARIANT_ATTRIBUTE.attribute_value.contains("|")).select():
@@ -619,7 +624,7 @@ db.define_table('ANNOTATION_FILE'
                 ,Field('filename_upload'     ,'string'      ,length = 200     ,label = T('File name'))
                 ,Field('date_upload'         ,'datetime'                      ,label = T('Upload date') )
                 ,Field('fl_elaborated'       ,'string'      ,length = 1       ,label = T('Processed?') 
-                        ,comment = T('N=not Processed X=in Processing Y=Processed'))
+                        ,comment = T('N=not Processed/to Reprocess X=in Processing Y=Processed'))
                 ,Field('date_valid_from'     ,'date'                          ,label = T('Valid from date') 
                       ,comment = T('use to set the ''valid from'' date'))
                 ,Field('ANNOTATION_TYPE_id'  ,'reference ANNOTATION_TYPE'     ,label = T('Text file type'))
@@ -765,8 +770,7 @@ db.define_table('VCF_FILE'
                 ,Field('filename_upload'     ,'string'      ,length = 200     ,label = T('VCF name'))
                 ,Field('date_upload'         ,'datetime'                      ,label = T('date upload') )
                 ,Field('fl_elaborated'       ,'string'      ,length = 1       ,label = T('Processed?')
-                      ,comment = T('Y=elaborated; N=not elaborated; X=in elaboration')
-                      )
+                      ,comment = T('N=not Processed/to Reprocess X=in Processing Y=Processed'))
                 ,Field('VCF_TYPE_id'         ,'reference VCF_TYPE'            ,label = T('VCF type'))
                 ,Field('PANEL_id'            ,'reference PANEL'               ,label = T('VCF analysis panel'))
                 ,Field('VIRTUAL_PANEL_id'    ,'reference VIRTUAL_PANEL'       ,label = T('Virtual panel for filtering') )

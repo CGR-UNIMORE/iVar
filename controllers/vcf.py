@@ -290,7 +290,7 @@ def vcf_file_elab(id):
 
     esito_parse = vcf_parse(id)
     if esito_parse == 1:
-        db(db.ANNOTATION_FILE.id == id).update(fl_elaborated='Y')
+        db(db.VCF_FILE.id == id).update(fl_elaborated='Y')
         db.commit()
         return True
     elif esito_parse == -1: #errore in eval classif

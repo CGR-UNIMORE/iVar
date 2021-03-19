@@ -420,6 +420,7 @@
 'My Sites': 'My Sites',
 'N=Not Elaborated X=in Elaboration Y=Elaborated': 'N=Not Elaborated X=in Elaboration Y=Elaborated',
 'N=not Processed X=in Processing Y=Processed': 'N=not Processed X=in Processing Y=Processed',
+'N=not Processed/to Reprocess X=in Processing Y=Processed': 'N=not Processed/to Reprocess X=in Processing Y=Processed',
 'Name': 'Nome',
 'Name of Annotations Type': 'Name of Annotations Type',
 'Name of panel': 'Name of panel',
