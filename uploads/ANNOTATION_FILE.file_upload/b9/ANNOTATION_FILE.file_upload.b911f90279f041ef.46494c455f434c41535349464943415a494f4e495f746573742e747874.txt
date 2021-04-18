@@ -1,0 +1,3 @@
+Chiave variante	Classif	Data classif
+1|45797100|G|A	C3	25/01/2021
+

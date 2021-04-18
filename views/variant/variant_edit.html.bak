@@ -1,0 +1,85 @@
+{{extend 'layout.html'}}
+{{=form_head}}
+
+
+<form action="#"  enctype="multipart/form-data" method="post" id="form_A_FAMILIARE">
+<!--{{=form.custom.begin}}-->
+    <div class="form-group row" id="id_hg19_id_hg38__row" >
+                <label class="form-control-label col-sm-1">
+                    {{=form.custom.label['id_hg19']}}
+                </label>
+                <div class="col-sm-5">
+                    {{=form.custom.widget['id_hg19']}}
+                    <span class="help-block">{{=form.custom.comment['id_hg19']}}</span>
+                </div>
+                <label class="form-control-label col-sm-1">
+                     {{=form.custom.label['id_hg38']}}
+                </label>
+                <div class="col-sm-5">
+                     {{=form.custom.widget['id_hg38']}}
+                     <span class="help-block">{{=form.custom.comment['id_hg38']}}</span>
+                </div>
+      </div>
+      <div class="form-group row" style="margin-bottom:0"  id="gene_classif_note__row" >
+                <label class="form-control-label col-sm-1">
+                    {{=form.custom.label['gene']}}
+                </label>
+                <div class="col-sm-2">
+                    {{=form.custom.widget['gene']}}
+                    <span class="help-block">{{=form.custom.comment['gene']}}</span>
+                </div>
+                <label class="form-control-label col-sm-1">
+                     {{=form.custom.label['classif']}}
+                </label>
+                <div class="col-sm-2">
+                     {{=form.custom.widget['classif']}}
+                     <span class="help-block">{{=form.custom.comment['classif']}}</span>
+                </div>
+                <div class="col-sm-6">
+                    {{=form.custom.widget['note']}}
+                    <span class="help-block">{{=form.custom.comment['note']}}</span>
+                </div>
+            </div>
+            <div class="form-group row" id="lastcheck_samples_delete_submit__row" >
+                <label class="form-control-label col-sm-1">
+                     {{=form.custom.label['last_check']}}
+                </label>
+                <div class="col-sm-2">
+                     {{=form.custom.widget['last_check']}}
+                     <span class="help-block">{{=form.custom.comment['last_check']}}</span>
+                </div>
+                <label class="form-control-label col-sm-1">
+                    {{=LABEL(T('#Samples'))}}
+                </label>
+                <div class="col-sm-1">
+                    {{=btn_samples_of_variant}}
+                </div>
+                <div style="text-align:right" class="col-sm-1">
+                    {{=form.custom.submit}}
+                </div>
+                <div class="form-control-label col-sm-2" >
+                    {{=DIV(
+                            LABEL(form.custom.deletable,T('Check to delete'), _id="delete_record__label")\
+                           ,SPAN(_class="help-block")\
+                           ,_class="checkbox"\
+                          ) if form.custom.deletable else ''}}
+                </div>
+                <div class="col-sm-4">
+                </div>
+             </div>
+<!-- Fine from personalizzata -->
+
+
+<!-- Attributi della variante -->
+      <div class="form-group" style="margin-bottom:0;margin-top:0" id="iframe_attribute__row" >
+           {{=iframe_attribute}}
+      </div>
+
+{{=form.custom.end}}
+
+
+<script>
+function resize_iframe(obj) {
+    obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+  }
+</script>

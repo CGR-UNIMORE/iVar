@@ -1,0 +1,50 @@
+# -*- coding: utf-8 -*-
+db.define_table('VCF_FILE_temp'
+                ,Field('file_upload'         ,'upload',  uploadseparate=True ,autodelete=True 
+                                                                              ,label = T('VCF file') )
+                ,Field('filename_upload'     ,'string'      ,length = 200     ,label = T('VCF name'))
+                ,Field('fl_crypted'          ,'string'      ,length = 1       ,label = T('Crypted ?')
+                       ,comment = T('Y=crypted; N=uncrypted; X=in crypting')
+                      )
+                ,Field('date_upload'         ,'datetime'                      ,label = T('date upload') )
+                ,Field('date_vcf'            ,'date'                          ,label = T('date VCF') )
+                ,Field('hg'                  ,'string'      ,length = 10      ,label = T('hg'))
+                ,Field('samples'             ,'list:string' ,length = 10      ,label = T('sample(s)'))
+                ,Field('fl_elaborated'       ,'string'      ,length = 1       ,label = T('Elaborated ?')
+                      ,comment = T('Y=elaborated; N=not elaborated; X=in elaboration')
+                      )
+                ,Field('VCF_TYPE_id'         ,'reference VCF_TYPE'            ,label = T('VCF type'))
+                ,Field('PANEL_id'            ,'reference PANEL'               ,label = T('Panel'))
+                ,Field('VIRTUAL_PANEL_id'    ,'reference VIRTUAL_PANEL'       ,label = T('Virtual panel') )
+                ,Field('vcf_name'            ,'upload', uploadfield='vcf_file' ,label = T('VCF') )
+                ,Field('vcf_file'            ,'blob'                          ,label = T('VCF file'))
+                ,format='%(vcf_name)s'
+               )
+
+db.VCF_FILE_temp.vcf_name.requires = IS_UPLOAD_FILENAME( error_message='obbligatorio')#, extension='^(vcf)$')
+db.VCF_FILE_temp.vcf_name.represent = lambda value,row: A(T('VCF file'), _href=URL('vcf','vcf_file_download', args=value))
+
+#db.VCF_FILE.vcf_file.requires  = IS_EMPTY_OR(IS_NOT_EMPTY(), null='')
+
+db.VCF_FILE_temp.fl_crypted.default = 'N'
+db.VCF_FILE_temp.fl_crypted.requires=IS_IN_SET([('N'),('Y'),('X')])
+
+db.VCF_FILE_temp.fl_crypted.widget=lambda f,v : SQLFORM.widgets.radio.widget(f,v,style='table', cols=3, _width='100%')
+
+db.VCF_FILE_temp.date_upload.requires = IS_EMPTY_OR(IS_DATE())
+db.VCF_FILE_temp.date_upload.represent = lambda value, row: value.strftime("%d/%m/%Y %H:%M") if value else ''
+db.VCF_FILE_temp.date_vcf.requires = IS_EMPTY_OR(IS_DATE())
+db.VCF_FILE_temp.date_vcf.ent = lambda value, row: value.strftime("%d/%m/%Y") if value else ''
+
+db.VCF_FILE_temp.hg.requires  = IS_EMPTY_OR(IS_NOT_EMPTY(), null='')
+db.VCF_FILE_temp.samples.requires  = IS_EMPTY_OR(IS_NOT_EMPTY(), null='')
+
+db.VCF_FILE_temp.fl_elaborated.default = 'N'
+db.VCF_FILE_temp.fl_elaborated.requires=IS_IN_SET([('N'),('Y'),('X')])
+
+db.VCF_FILE_temp.fl_elaborated.widget=lambda f,v : SQLFORM.widgets.radio.widget(f,v,style='table', cols=3, _width='100%')
+#db.VCF_FILE.fl_elaborated.represent = lambda value, row: representlabel(db.VCF_FILE.fl_elaborato,value)
+
+db.VCF_FILE_temp.VCF_TYPE_id.requires=IS_EMPTY_OR(IS_IN_DB(db, 'VCF_TYPE.id', '%(name_type)s'))
+db.VCF_FILE_temp.PANEL_id.requires=IS_EMPTY_OR(IS_IN_DB(db, 'PANEL.id', '%(name_panel)s'))
+db.VCF_FILE_temp.VIRTUAL_PANEL_id.requires=IS_EMPTY_OR(IS_IN_DB(db, 'VIRTUAL_PANEL.id', '%(name_virtual_panel)s'))

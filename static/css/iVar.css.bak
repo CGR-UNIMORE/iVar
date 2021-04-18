@@ -1,0 +1,49 @@
+/** Fede 15/8/2019 aggiunto per menu verde sfumato */
+.navbar-ivar {
+    background-image:linear-gradient(to bottom,#3f784c 0,#222 100%);
+    padding:0px 15px;
+}
+
+.navbar-ivar li {
+    padding:1px 8px;
+}
+.card-ivar {
+	background-image: linear-gradient(to bottom,#8facaa 0,#d0e9c6 100%);
+	border-color: #d6e9c6;
+	margin-bottom:5px;
+}
+/** impostato label settate a destra e grassetto, come con bootstrap3  **/
+.form-control-label {
+    padding-top: 7px;
+    margin-bottom: 0;
+    text-align: right;
+    display:inline;
+    vertical-align:middle;
+    font-weight: 500;
+}
+
+/** Icons aggiuntive **/
+/*
+https://fontawesome.com/cheatsheet/free/solid
+*/
+
+.icon {
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.icon.list:before { content: "\f03a";}
+.icon.history:before { content: "\f1da";}
+.icon.trash:before { content: "\f014";}
+.icon.th:before { content: "\f00a";}
+.icon.sync:before { content: "\f021";}
+.icon.bullseye:before { content: "\f140";}
+.icon.check:before { content: "\f00c";}
+.icon.cogs:before { content: "\f085";}
+.icon.cog:before { content: "\f013";} 
+.icon.flask:before { content: "\f0c3";}
+.icon.hourglass:before { content: "\f252";}

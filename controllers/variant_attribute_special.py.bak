@@ -1,0 +1,155 @@
+# -*- coding: utf-8 -*-
+# prova qualcosa come
+def index(): return dict(message="hello from variant_attribute_special.py")
+
+@auth.requires_permission('view', 'VARIANT')
+def search():
+
+    response.title = T('Variant and special attributes') 
+    form_head = head_title(response.title)
+
+    VARIANT = ['gene','id_hg19','id_hg38','classif']
+
+    default = dict()
+    for v in VARIANT:
+        default[v] = request.vars[v]
+    for a in SPECIAL_ATTRIBUTES:
+        default[a] = request.vars[a]
+
+#campi di ricerca
+    form = SQLFORM.factory(
+                           submit_button=T('Search')
+                          ,formstyle='bootstrap3_inline'#'divs'
+                          )
+    f=[]
+    for v in VARIANT:
+        default[v] = request.vars[a]
+        f.append(Field(v ,type = db.VARIANT[v].type
+                         ,length=db.VARIANT[v].length    
+                         ,label = db.VARIANT[v].label
+                         ,default=default[v]
+                         ,widget=bootstrap_autocomplete(request
+                                                       ,db.VARIANT[v]
+                                                       ,limitby=(0,20), min_length=0
+                                                       ,at_beginning = False
+                                                        ,distinct=True
+                                                       )
+                      )
+                )
+    for a in SPECIAL_ATTRIBUTES:
+        default[a] = request.vars[a]
+        f.append(Field(a ,'string'
+                         ,length=50
+                         ,label = a
+                         ,default=default[a]
+                       )
+                )
+    form=SQLFORM.factory(*f)
+
+    def validation_search(form):
+        count = 0
+        for v in VARIANT:
+            if form.vars[v]:
+                count = count +1
+        for a in SPECIAL_ATTRIBUTES:
+            if form.vars[a]:
+                count = count +1
+        if count== 0:
+            response.flash = T('indicare un campo')
+            form.errors[1] = T('indicare un campo')
+            return False
+
+        return True
+
+    query = None
+    if form.process(onvalidation=validation_search).accepted:
+        response.flash = ''
+        variant=dict()
+        for v in VARIANT:
+            variant[v] = form.vars[v]
+        attribute=dict()
+        for a in SPECIAL_ATTRIBUTES:
+            attribute[a] = form.vars[a]
+
+        forms_search = form_result(variant,attribute)
+    else:
+        forms_search = dict(form_result='')
+    a=dict(form_head=form_head,form=form)
+    forms_search.update(a)
+    return forms_search
+
+def form_result(variant,attribute):
+    query = (db.VARIANT.id>0)
+    fields = []
+    for k,v in variant.items():
+        if v:
+            query &= (db.VARIANT[k]==v)
+        fields.append(db.VARIANT[k])
+    for a,v in attribute.items():
+        if v:
+            tab_a = db.VARIANT_ATTRIBUTE.with_alias(a)
+            for field in tab_a:
+                field.readable = False
+            fields.append(tab_a.valid_from)
+            fields.append(tab_a.attribute_value)
+            tab_a.attribute_value.label = a
+            query &=(db.VARIANT.id==tab_a.VARIANT_id) & (tab_a.attribute_name == a) & (tab_a.attribute_value.contain(v))
+
+    for field in fields:
+        field.readable = True
+    db.VARIANT.readable = True
+    field_id = db.VARIANT.id
+
+    default_sort_order=(db.VARIANT.id_hg19)
+    
+    links = [(lambda row: A('', _title=T('Edit')
+                        ,_class='btn btn-default btn-secondary btn-sm icon pen icon-pen glyphicon glyphicon-pencil'
+                        ,_href=URL("variant","edit",args=[row.VARIANT.id]
+                                  , vars=dict(form_head_indietro='special_attributes_list'))
+                           )
+             )
+            ,dict(header=T('#Samples'),
+                   body=lambda row: A(str(num_samples_of_variant(row.VARIANT.id))
+                                      ,_class='btn btn-default btn-secondary btn-sm'
+                                      ,_title=T('Samples')
+                                      ,_href=URL('sample_variant','samples_of_variant',args=[row.VARIANT.id])
+                                      ,_target='blank'
+                                       ) if auth.has_permission('view', 'SAMPLE_VARIANT') else SPAN(str(num_samples_of_variant(row.VARIANT.id))
+                                                                                                    ,_class='btn btn-default btn-secondary btn-sm')
+                 )
+            ]
+
+    exportclasses=dict(
+        csv_with_hidden_cols=False,
+        tsv_with_hidden_cols=False
+                       )
+#        csv=(ExporterCSV, 'CSV'),
+#        xml=(ExporterXML, 'XML'),
+#        html=(ExporterHTML, 'HTML'),
+#        tsv=(ExporterTSV, 'TSV (Excel compatible)')
+
+    form = SQLFORM.grid(query=query
+                       ,fields=fields
+                       #,headers=headers
+                       #,links = links
+                        ,links_in_grid = True
+                        ,field_id = field_id
+                        ,orderby=default_sort_order
+                        ,create=False
+                        ,deletable=False
+                        ,editable=False
+                        ,details=False
+                        #,sorter_icons=(XML('&#x2191;'), XML('&#x2193;'))
+                        ,showbuttontext=False
+                        ,maxtextlength=70
+                        #,maxtextlengths=maxtextlengths
+                        ,paginate=10
+                        ,csv = True
+                        ,exportclasses=exportclasses
+                        ,buttons_placement = 'left'
+                        ,links_placement = 'right'
+                        ,user_signature=False
+                        ,args=request.args[:1]
+                       ) 
+
+    return dict(form_result=form)

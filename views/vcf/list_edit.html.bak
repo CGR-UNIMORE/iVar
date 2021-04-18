@@ -1,0 +1,102 @@
+{{extend 'layout.html'}}
+{{=form_head}}
+<form id ="default" action="#" class="form-group" enctype="multipart/form-data" method="post">
+    <div class="web2py_htmltable" style="width:100%;overflow-x:auto;-ms-overflow-x:scroll">
+        <table class= "web2py_grid">
+            <!-- class = "web2py_grid col-sm-12"-->
+            <thead>
+                <tr>
+                    <th>
+                    </th>
+                    <th >
+                        {{=form_default.custom.label['VCF_TYPE_id']}}
+                    </th>
+                    <th >
+                        {{=form_default.custom.label['PANEL_id']}}
+                    </th>
+                    <th >
+                        {{=form_default.custom.label['VIRTUAL_PANEL_id']}}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <input class="btn btn-primary" onclick="imposta_default()" type="button" value="{{=T('Set values')}}"/></div>
+                    </td>
+                    <td>
+                        {{=form_default.custom.widget['VCF_TYPE_id']}}
+                    </td>
+                    <td>
+                        {{=form_default.custom.widget['PANEL_id']}}
+                    </td>
+                    <td>
+                        {{=form_default.custom.widget['VIRTUAL_PANEL_id']}}
+                    </td>
+                </tr>
+            </tbody>
+            <tfooter>
+                <td></td>
+                <td style="vertical-align:top">
+                    {{=A(db.VCF_FILE.VCF_TYPE_id.label, ' ->', _href=URL('vcf','vcf_type_list'), _target='blank')}}
+                </td>
+                <td style="vertical-align:top">
+                    {{=A(db.VCF_FILE.PANEL_id.label, ' ->', _href=URL('vcf','panel_list'), _target='blank')}}
+                </td>
+                <td style="vertical-align:top">
+                    {{=A(db.VCF_FILE.VIRTUAL_PANEL_id.label, ' ->', _href=URL('vcf','virtual_panel_list'), _target='blank')}}
+                </td>
+            </tfooter>
+        </table>
+    </div>
+
+{{=form_list}}
+
+</br>
+
+<script>
+// seleziono il ceckbox se faccio una modifica ad un campo select
+
+$('select').on('change', function() {
+    input_name = jQuery(this).attr('name');
+    if (typeof input_name !== typeof undefined && input_name !== false) {
+        //console.log('input_name: ' + input_name);
+        if (input_name.includes('_row_')){
+            record = input_name.split('_row_')[1];
+            //console.log('record: ' + record);
+            $('input[name=records][value='+record+']').prop( "checked", true );
+        }
+    }
+});
+
+function imposta_default() {
+    // preseleziono tutti i chekcbox poichè modificherò le select di tutte le righe
+    jQuery('input[name=records_select]').prop('checked','checked');
+    jQuery('input[name=records]').each(function(){
+        jQuery(this).prop('checked','checked');
+    });
+
+    var default_VCF_TYPE_id = jQuery('select[id=default_VCF_TYPE_id]').val();
+    //console.log('VCF_TYPE_id: ' + default_VCF_TYPE_id);
+    if (default_VCF_TYPE_id !== ""){
+        jQuery('select[id=VCF_FILE_VCF_TYPE_id]').each(function(index,element){
+            jQuery(this).val(default_VCF_TYPE_id);
+        });
+    }
+    var default_PANEL_id = jQuery('select[id=default_PANEL_id]').val();
+    //console.log('PANEL_id: ' + default_PANEL_id);
+    if (default_PANEL_id !== ""){
+        jQuery('select[id=VCF_FILE_PANEL_id]').each(function(index,element){
+            jQuery(this).val(default_PANEL_id);
+        });
+    }
+    var default_VIRTUAL_PANEL_id = jQuery('select[id=default_VIRTUAL_PANEL_id]').val();
+    //console.log('VIRTUAL_PANEL_id: ' + default_VIRTUAL_PANEL_id);
+    if (default_VIRTUAL_PANEL_id !== ""){
+        jQuery('select[id=VCF_FILE_VIRTUAL_PANEL_id]').each(function(index,element){
+            jQuery(this).val(default_VIRTUAL_PANEL_id);
+        });
+    }
+}
+
+</script>

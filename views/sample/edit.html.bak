@@ -1,0 +1,78 @@
+{{extend 'layout.html'}}
+{{=form_head}}
+
+
+<form action="#"  enctype="multipart/form-data" method="post">
+<!--{{=form.custom.begin}}-->
+    <div class="form-group row" id="sample1__row" >
+                <label class="form-control-label col-sm-1">
+                     {{=form.custom.label['sample']}}
+                </label>
+                <div class="col-sm-3">
+                     {{=form.custom.widget['sample']}}
+                     <span class="help-block">{{=form.custom.comment['sample']}}</span>
+                </div>
+                <label class="form-control-label col-sm-1">
+                    {{=form.custom.label['VCF_FILE_ids']}}
+                </label>
+                <div class="col-sm-7">
+                    {{=form.custom.widget['VCF_FILE_ids']}}
+                    <span class="help-block">{{=form.custom.comment['VCF_FILE_ids']}}</span>
+                </div>
+    </div>
+    <div class="form-group row" id="sample2__row" >
+                <label class="form-control-label col-sm-1">
+                    {{=form.custom.label['fl_sample_type']}}
+                </label>
+                <div class="col-sm-3">
+                    {{=form.custom.widget['fl_sample_type']}}
+                    <span class="help-block">{{=form.custom.comment['fl_sample_type']}}</span>
+                </div>
+                <label class="form-control-label col-sm-1">
+                    {{=form.custom.label['TISSUE_TYPE_id']}}
+                </label>
+                <div class="col-sm-3">
+                    {{=form.custom.widget['TISSUE_TYPE_id']}}
+                    <span class="help-block">{{=form.custom.comment['TISSUE_TYPE_id']}}</span>
+                </div>
+                <label class="form-control-label col-sm-1">
+                    {{=form.custom.label['fl_sex']}}
+                </label>
+                <div class="col-sm-3">
+                    {{=form.custom.widget['fl_sex']}}
+                    <span class="help-block">{{=form.custom.comment['fl_sex']}}</span>
+                </div>
+    </div>
+     <div class="form-group row" id="samples_delete_submit__row" >
+                <label class="form-control-label col-sm-1">
+                    {{=LABEL(T('#Variants'))}}
+                </label>
+                <div class="col-sm-1">
+                    {{=btn_variants_of_sample}}
+                </div>
+                <div class="offset-sm-3 col-sm-1">
+                    {{=form.custom.submit}}
+                </div>
+                <div class="form-control-label col-sm-2" >
+                    {{=DIV(
+                            LABEL(form.custom.deletable,T('Check to delete'), _id="delete_record__label")\
+                           ,SPAN(_class="help-block")\
+                           ,_class="checkbox"\
+                          ) if form.custom.deletable else ''}}
+                </div>
+                 <div class="col-sm-4" >
+                </div>
+    </div>
+
+
+<!-- Fine from personalizzata -->
+
+{{=form.custom.end}}
+
+</br>
+    
+<script>
+function resize_iframe(obj) {
+    obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+  }
+</script>

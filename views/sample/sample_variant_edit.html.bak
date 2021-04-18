@@ -1,0 +1,66 @@
+{{extend 'layout.html'}}
+{{=form_head}}
+
+
+<form action="#" class="form-horizontal" enctype="multipart/form-data" method="post" id="form_A_FAMILIARE">
+<!--{{=form.custom.begin}}-->
+    <div class="form-group" id="sample_variant__row" >
+                <label class="control-label col-sm-1">
+                     {{=form.custom.label['AF']}}
+                </label>
+                <div class="col-sm-3">
+                     {{=form.custom.widget['AF']}}
+                     <span class="help-block">{{=form.custom.comment['AF']}}</span>
+                </div>
+                <label class="control-label col-sm-1">
+                    {{=form.custom.label['GT']}}
+                </label>
+                <div class="col-sm-3">
+                    {{=form.custom.widget['GT']}}
+                    <span class="help-block">{{=form.custom.comment['GT']}}</span>
+                </div>
+                <div class="col-sm-3 col-sm-offset-1">
+                    {{=form.custom.submit}}
+                </div>
+      </div>
+
+
+<!-- Fine from personalizzata -->
+
+    <div class="form-group" id="iframe_attribute__row">
+        <div>
+             {{=iframe_attribute}}
+        </div>
+    </div>
+
+{{=form.custom.end}}
+
+</br>
+
+<script>
+function resize_iframe(obj) {
+    obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+  }
+</script>
+<script>
+$( 'nav' ).remove(); // tolto la nav bar sopra
+
+// faccio in modo che le form vengano visualizzate bene anche in dimensioni più piccole
+if ( $('.col-sm-3').hasClass('col-sm-3') ) {
+    $('.col-sm-3').removeClass('col-sm-3').addClass('col-xs-3');
+}
+if ( $('.col-sm-9').hasClass('col-sm-9') ) {
+    $('.col-sm-9').removeClass('col-sm-9').addClass('col-xs-9');
+}
+
+// tolgo bordi e footer
+$(document).ready(function() {
+    $('footer').remove();
+    $('body').css('paddingTop', '0px');
+    $('body').css('margin-bottom', '0px');
+    $('.main-container').css('margin-top', '0px');
+    $('.main-container').css('margin-bottom', '0px');
+    $('.container-fluid').css('padding-right', '0px');
+    $('.container-fluid').css('padding-left', '0px');
+});
+</script>

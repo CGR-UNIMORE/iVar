@@ -1,0 +1,125 @@
+<!--
+    This file is part of iVar - DataBase of Genomics Variants
+
+    Copyright (C) 2020 Federica Cestari, Enrico Tagliafico,
+    Sara Castellano and Giovanni Faglioni
+    Copyright (C) 2020 Universita di Modena e Reggio Emilia
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{{extend 'layout.html'}}
+{{=form_head}}
+
+
+<form action="#" enctype="multipart/form-data" method="post" id="form_sample_variant">
+<!--{{=form.custom.begin}}-->
+    <div class="form-group row" id="sample_variant1__row" >
+        {{if db.SAMPLE_VARIANT.VARIANT_id.readable:}}
+        <label class="form-control-label col-sm-1">
+             {{=form.custom.label['VARIANT_id']}}
+        </label>
+        <div class="col-sm-5 ">
+             {{=form.custom.widget['VARIANT_id']}}
+             <span class="help-block">{{=form.custom.comment['VARIANT_id']}}</span>
+        </div>
+        {{else:}}
+        <div class="col-sm-6 ">
+        </div>
+        {{pass}}
+        {{if db.SAMPLE_VARIANT.SAMPLE_id.readable:}}
+        <label class="form-control-label col-sm-1">
+            {{=form.custom.label['SAMPLE_id']}}
+        </label>
+        <div class="col-sm-4">
+            {{=form.custom.widget['SAMPLE_id']}}
+            <span class="help-block">{{=form.custom.comment['SAMPLE_id']}}</span>
+        </div>
+        {{else:}}
+        <div class="col-sm-5 ">
+        </div>
+        {{pass}}
+         <div class="col-sm-1">
+        </div>
+    </div>
+    <div class="form-group row" id="sample_variant2__row" >
+            <label class="form-control-label col-sm-1">
+                 {{=form.custom.label['AF']}}
+            </label>
+            <div class="col-sm-3">
+                 {{=form.custom.widget['AF']}}
+                 <span class="help-block">{{=form.custom.comment['AF']}}</span>
+            </div>
+            <label class="form-control-label col-sm-1">
+                {{=form.custom.label['GT']}}
+            </label>
+            <div class="col-sm-2">
+                {{=form.custom.widget['GT']}}
+                <span class="help-block">{{=form.custom.comment['GT']}}</span>
+            </div>
+             <div class="col-sm-1 offset-sm-1">
+                  {{=form.custom.submit}}
+            </div>
+            <div class="col-sm-2 offset-sm-1">
+                {{if form.custom.deletable:}}
+                <div class="checkbox" , id="delete_record__row">
+                    <label class="form-control-label col-sm-1">
+                        {{=LABEL(form.custom.deletable,T('Check to delete'), _id="delete_record__label")}}
+                        <span class="help-block"></span>
+                    </label>
+                </div>
+            {{pass}}
+          </div>
+        
+           
+
+
+<!-- Fine from personalizzata -->
+        
+    <div class="form-group" id="iframe_attribute__row">
+        <div>
+             {{=iframe_attribute}}
+        </div>
+    </div>
+
+{{=form.custom.end}}
+
+</br>
+
+<script>
+function resize_iframe(obj) {
+    obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+  }
+</script>
+<script>
+$( 'nav' ).remove(); // tolto la nav bar sopra
+
+// faccio in modo che le form vengano visualizzate bene anche in dimensioni più piccole
+if ( $('.col-sm-3').hasClass('col-sm-3') ) {
+    $('.col-sm-3').removeClass('col-sm-3').addClass('col-xs-3');
+}
+if ( $('.col-sm-9').hasClass('col-sm-9') ) {
+    $('.col-sm-9').removeClass('col-sm-9').addClass('col-xs-9');
+}
+
+// tolgo bordi e footer
+$(document).ready(function() {
+    $('footer').remove();
+    $('body').css('paddingTop', '0px');
+    $('body').css('margin-bottom', '0px');
+    $('.main-container').css('margin-top', '0px');
+    $('.main-container').css('margin-bottom', '0px');
+    $('.container-fluid').css('padding-right', '0px');
+    $('.container-fluid').css('padding-left', '0px');
+});
+</script>

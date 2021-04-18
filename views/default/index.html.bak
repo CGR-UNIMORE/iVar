@@ -1,0 +1,16 @@
+{{extend 'layout.html'}}
+
+{{block header}}
+        {{=DIV(IMG(_src="/iVar/static/images/iVarDB_logo.png",_width="296",_height="175",_alt="iVar DB"),_style='padding-top: 5px; padding-left: 20px')}}
+{{end}}
+{{block footer}}
+<footer class="footer container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="copyright pull-left">
+            {{=T('Download source')}}
+            <a href="https://github.com/CestFede/iVar" , target = "blank">iVar</a>
+          </div>
+        </div>
+      </div>
+{{end}}

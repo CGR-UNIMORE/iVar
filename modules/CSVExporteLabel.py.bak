@@ -1,0 +1,39 @@
+from gluon.sqlhtml import ExportClass
+
+from cStringIO import StringIO
+import csv
+#class ExporterCSVlabel(ExportClass):
+
+class CSVExporter(object):
+    """This class is used to export header from label end not from field name"""
+    file_ext = "csv"
+    content_type = "text/csv"
+
+    def __init__(self, rows):
+        self.rows = rows
+
+    def export(self):
+        if self.rows:
+            s = StringIO()
+            csv_writer = csv.writer(s)
+            # obtain column names of current table
+            col = self.rows.colnames
+            # col contains list of column names
+            # e.g: ["employee.id", "employee.name",
+            #       "employee.email", "employee.company"]
+            # get label of field
+            header = list()
+            for col in self.rows.colnames:
+                (t, f) = col.split('.')
+                field = self.rows.db[t][f]
+                field_label = field.label
+                colname = field_label
+                header.append(colname)
+            # Write explicitly the heading in CSV
+            csv_writer.writerow(header)
+            # don't write default colnames
+            self.rows.export_to_csv_file(
+                s, represent=True, write_colnames=False)
+            return s.getvalue()
+        else:
+            return ''

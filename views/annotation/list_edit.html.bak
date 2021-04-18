@@ -1,0 +1,87 @@
+{{extend 'layout.html'}}
+{{=form_head}}
+<form id ="default" action="#" class="form-group" enctype="multipart/form-data" method="post">
+    <div class="web2py_htmltable" style="width:100%;overflow-x:auto;-ms-overflow-x:scroll">
+        <table class= "web2py_grid">
+            <!-- class = "web2py_grid col-sm-12"-->
+            <thead>
+                <tr>
+                    <th>
+                    </th>
+                    <th>
+                        {{=form_default.custom.label['date_valid_from']}}
+                    </th>
+                    <th>
+                        {{=form_default.custom.label['ANNOTATION_TYPE_id']}}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                 <tr>
+                    <td>
+                        <input class="btn btn-primary" onclick="imposta_default()" type="button" value="{{=T('Set values')}}"/></div>
+                    </td>
+                    <td>
+                        {{=form_default.custom.widget['date_valid_from']}}
+                    </td>
+                    <td>
+                        {{=form_default.custom.widget['ANNOTATION_TYPE_id']}}
+                    </td>
+                </tr>
+            </tbody>
+            <tfooter>
+                <td></td>
+                <td></td>
+                <td style="vertical-align:top">
+                    {{=A(db.ANNOTATION_FILE.ANNOTATION_TYPE_id.label, ' ->', _href=URL('annotation','annotation_type_list'), _target='blank')}}
+                </td>
+            </tfooter>
+        </table>
+    </div>
+
+{{=form_list}}
+
+<div>
+    
+</div>
+
+<script>
+// seleziono il ceckbox se faccio una modifica ad un campo select
+
+$('select').on('change', function() {
+    input_name = jQuery(this).attr('name');
+    if (typeof input_name !== typeof undefined && input_name !== false) {
+        //console.log('input_name: ' + input_name);
+        if (input_name.includes('_row_')){
+            record = input_name.split('_row_')[1];
+            //console.log('record: ' + record);
+            $('input[name=records][value='+record+']').prop( "checked", true );
+        }
+    }
+});
+
+function imposta_default() {
+    // preseleziono tutti i chekcbox poichè modificherò le select di tutte le righe
+    jQuery('input[name=records_select]').prop('checked','checked');
+    jQuery('input[name=records]').each(function(){
+        jQuery(this).prop('checked','checked');
+    });
+
+    var default_date_valid_from = jQuery('input[id=default_date_valid_from]').val();
+    //console.log('date_valid_from: ' + default_date_valid_from);
+    if (default_date_valid_from !== ""){
+        jQuery('input[id=ANNOTATION_FILE_date_valid_from]').each(function(index,element){
+            jQuery(this).val(default_date_valid_from);
+        });
+    }
+    var default_ANNOTATION_TYPE_id = jQuery('select[id=default_ANNOTATION_TYPE_id]').val();
+    //console.log('ANNOTATION_TYPE_id: ' + default_ANNOTATION_TYPE_id);
+    if (default_ANNOTATION_TYPE_id !== ""){
+        jQuery('select[id=ANNOTATION_FILE_ANNOTATION_TYPE_id]').each(function(index,element){
+            jQuery(this).val(default_ANNOTATION_TYPE_id);
+        });
+    }
+
+}
+
+</script>

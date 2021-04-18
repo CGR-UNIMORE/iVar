@@ -1,0 +1,34 @@
+{{extend 'layout.html'}}
+
+<script src="{{=URL('static','js/jquery.jeditable.js')}}"></script>
+
+<script>
+jQuery(document).ready(function(){
+    jQuery('.assembly').editable("{{=URL('vcf', 'vcf_file_update_inline')}}",{ 
+                                 submit : "ok" 
+    });
+    jQuery('.id_test').editable("{{=URL('vcf', 'vcf_file_update_inline')}}",{
+                                 submit : "ok" 
+                                ,type : "select"
+                                ,data :  '{{=requires_option(db.VCF_file.id_test)}}'
+    });
+    jQuery('.fl_tipo_campione').editable("{{=URL('vcf', 'vcf_file_update_inline')}}",{
+                                 submit : "ok" 
+                                ,type : "select" 
+                                ,data : '{{=requires_option(db.VCF_file.fl_tipo_campione)}}'
+                                //,loadurl : "{{=URL('vcf','vcf_file_fl_tipo_campione')}}"
+    });
+    jQuery('.fl_sex').editable("{{=URL('vcf', 'vcf_file_update_inline')}}",{
+                                 submit : "ok" 
+                                ,type   : "select"
+                                ,data :  '{{=requires_option(db.VCF_file.fl_sex)}}'
+
+    });
+
+})
+</script>
+
+{{=form_head}}
+<div id='VCF_file'>
+    {{=form}}
+</div>

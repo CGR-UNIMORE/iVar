@@ -1,0 +1,62 @@
+{{extend 'layout.html'}}
+{{=form_head}}
+
+
+<form action="#" class="form-horizontal" enctype="multipart/form-data" method="post" id="form_A_FAMILIARE">
+<!--{{=form.custom.begin}}-->
+    <div class="form-group" id="variante_sample__row" >
+                <label class="control-label col-sm-1">
+                    {{=form.custom.label['VARIANT_id']}}
+                </label>
+                <div class="col-sm-4">
+                    {{=form.custom.widget['VARIANT_id']}}
+                    <span class="help-block">{{=form.custom.comment['VARIANT_id']}}</span>
+                </div>
+                <label class="control-label col-sm-1">
+                     {{=form.custom.label['sample']}}
+                </label>
+                <div class="col-sm-1">
+                     {{=form.custom.widget['sample']}}
+                     <span class="help-block">{{=form.custom.comment['sample']}}</span>
+                </div>
+                <label class="control-label col-sm-1">
+                    {{=form.custom.label['VCF_file_id']}}
+                </label>
+                <div class="col-sm-4">
+                    {{=form.custom.widget['VCF_file_id']}}
+                    <span class="help-block">{{=form.custom.comment['VCF_file_id']}}</span>
+                </div>
+      </div>
+      <div class="col-sm-12" id='iframe_attribute__row'>
+           {{=iframe_attribute}}
+      </div>
+
+
+<!-- Fine from personalizzata -->
+
+{{=DIV(
+       DIV(
+           DIV(
+               LABEL(form.custom.deletable,T('Check to delete'), _id="delete_record__label")\
+              ,SPAN(_class="help-block")\
+              ,_class="checkbox"\
+              )\
+          ,_class="col-sm-offset-1 col-sm-11")\
+      ,_class="form-group", _id="delete_record__row"\
+      )\
+    if form.custom.deletable else ''}}
+
+<div class="form-group" id="submit_record__row">
+    <div class="col-sm-8 col-sm-offset-4">
+        {{=form.custom.submit}}
+    </div>
+</div>
+
+{{=form.custom.end}}
+
+
+<script>
+function resize_iframe(obj) {
+    obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+  }
+</script>

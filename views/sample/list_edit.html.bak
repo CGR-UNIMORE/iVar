@@ -1,0 +1,117 @@
+<!--
+    This file is part of iVar - DataBase of Genomics Variants
+
+    Copyright (C) 2020 Federica Cestari, Enrico Tagliafico,
+    Sara Castellano and Giovanni Faglioni
+    Copyright (C) 2020 Universita di Modena e Reggio Emilia
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{{extend 'layout.html'}}
+{{=form_head}}
+<form id ="default" action="#" class="form-group" enctype="multipart/form-data" method="post">
+    <div class="web2py_htmltable" style="width:100%;overflow-x:auto;-ms-overflow-x:scroll">
+        <table class= "web2py_grid">
+            <!-- class = "web2py_grid col-sm-12"-->
+            <thead>
+                <tr>
+                    <th></th>
+                    <th >
+                        {{=form_default.custom.label['fl_sample_type']}}
+                    </th>
+                    <th >
+                        {{=form_default.custom.label['TISSUE_TYPE_id']}}
+                    </th>
+                    <th >
+                        {{=form_default.custom.label['fl_sex']}}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <input class="btn btn-primary" onclick="imposta_default()" type="button" value="{{=T('Set values')}}" /></div>
+                    </td>
+                    <td>
+                        {{=form_default.custom.widget['fl_sample_type']}} 
+                        <span> </span>
+                    </td>
+                    <td>
+                        {{=form_default.custom.widget['TISSUE_TYPE_id']}} 
+                        <span> </span>
+                    </td>
+                    <td>
+                        {{=form_default.custom.widget['fl_sex']}} 
+                        <span> </span>
+                    </td>
+                </tr>
+            </tbody>
+            <tfooter>
+                <td></td>
+                <td style="vertical-align:top">
+                    {{=A(db.SAMPLE.TISSUE_TYPE_id.label, ' ->', _href=URL('sample','tissue_type_list'), _target='blank')}}
+                </td>
+                <td>
+                </td>
+            </tfooter>
+        </table>
+    </div>
+
+{{=form_list}}
+</br>
+
+<script>
+
+$('select').on('change', function() {
+    input_name = jQuery(this).attr('name');
+    if (typeof input_name !== typeof undefined && input_name !== false) {
+        //console.log('input_name: ' + input_name);
+        if (input_name.includes('_row_')){
+            record = input_name.split('_row_')[1];
+            //console.log('record: ' + record);
+            $('input[name=records][value='+record+']').prop( "checked", true );
+        }
+    }
+});
+
+function imposta_default() {
+    jQuery('input[name=records_select]').prop('checked','checked');
+    jQuery('input[name=records]').each(function(){
+        jQuery(this).prop('checked','checked');
+    });
+
+    var default_fl_sample_type = jQuery('select[id=default_fl_sample_type]').val(); 
+    //console.log('fl_sample_type: ' + default_fl_sample_type);
+    if (default_fl_sample_type !== ""){
+        jQuery('select[id=SAMPLE_fl_sample_type]').each(function(index,element){
+            jQuery(this).val(default_fl_sample_type);
+        });
+    }
+    var default_TISSUE_TYPE_id = jQuery('select[id=default_TISSUE_TYPE_id]').val(); 
+    //console.log('TISSUE_TYPE_id: ' + default_TISSUE_TYPE_id);
+    if (default_TISSUE_TYPE_id !== ""){
+        jQuery('select[id=SAMPLE_TISSUE_TYPE_id]').each(function(index,element){
+            jQuery(this).val(default_TISSUE_TYPE_id);
+        });
+    }
+    var default_fl_sex = jQuery('select[id=default_fl_sex]').val(); 
+    //console.log('fl_sex: ' + default_fl_sex);
+    if (default_fl_sex !== ""){
+        jQuery('select[id=SAMPLE_fl_sex]').each(function(index,element){
+            jQuery(this).val(default_fl_sex);
+        });
+    }
+}
+
+</script>

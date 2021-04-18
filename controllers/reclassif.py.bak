@@ -1,0 +1,121 @@
+# -*- coding: utf-8 -*-
+import tempfile
+import os
+import datetime
+import vcf
+import zipfile
+
+def index(): return dict(message="hello from reclassif.py")
+
+
+#######################################
+####   RECLASSIFICATION Variants   ####
+#######################################
+
+@auth.requires_permission('view', 'VARIANT')
+def vcf_variant():
+    response.title = T('VCF file of Variants for reclassification')
+    form_head=head_title(response.title)
+    hg = request.vars.hg or 'hg19'
+    form = SQLFORM.factory(
+                            Field('hg' , type='string'
+                                       , length = 1
+                                       , label = T('Select hg reference for export')
+                                       , requires = IS_IN_SET([('hg19',T('Hg 19')),('hg38',T('Hg 38'))])
+                                       , default = hg
+                                       , widget=lambda f,v : SQLFORM.widgets.radio.widget(f,v,style='table', cols=2, _width='30%')
+                                       , id='hg'
+                                 )
+                           #,formstyle='bootstrap4_stacked' #'bootstrap4_stacked' #table3cols'#bootstrap3_inline'#'divs'
+                           ,submit_button = T("export VCF variant")
+                        )
+
+    if form.accepts(request.vars):
+        hg = form.vars.hg
+        vcf_variants = []
+        vcf_variants = compose_vcf_variant(hg)
+        
+        #da quì per download su pc
+        #se rimangono su fs, per successwiva elaborazione automatica, ricordarsi di 
+        #gestire os.unlink(vcf_variant.name) #delete vcf_variant temporary file
+        #
+        #import zipfile
+        # create zip of vcf_variant file
+        if vcf_variants:
+            zip_vcf_variants = tempfile.NamedTemporaryFile(prefix = "ALLVariant_"
+                                                          ,suffix='.zip', delete=False) 
+            with zipfile.ZipFile(zip_vcf_variants, 'w') as zipMe:
+                for vcf_variant in vcf_variants:
+                    file_name = os.path.basename(vcf_variant.name).split("|")
+                    arcname = file_name[0]+".vcf"
+                    zipMe.write(vcf_variant.name, arcname, compress_type=zipfile.ZIP_DEFLATED)
+                    os.unlink(vcf_variant.name) #delete vcf_variant temporary file
+
+            fh = open(zip_vcf_variants.name, 'rb')
+            os.unlink(zip_vcf_variants.name) # delete zip_vcf_variants temporary file
+            file_header = "attachment; filename=ALLVariant_" + datetime.datetime.now().strftime("%Y%m%d%H%M") + ".zip"
+            response.headers['ContentType'] = "application/octet-stream"
+            response.headers['Content-Disposition'] = file_header
+            return response.stream(fh) #download zip_vcf_variants
+
+    return response.render(default_view, dict(form_head=form_head,form=form))
+    #return dict(form_head=form_head, form=form)
+
+def compose_vcf_variant(hg):
+    vcf_variants=[]
+    if hg == 'hg19':
+        rows = db(db.VARIANT.id>0).select(db.VARIANT.id_hg19.with_alias('id_hg'))
+    elif hg == 'hg38':
+        rows = db(db.VARIANT.id>0).select(db.VARIANT.id_hg38.with_alias('id_hg'))
+    else:
+        return vcf_variants
+    
+    template = os.path.join(request.folder,myconf.take('iVarDB.vcf_variant_template'))
+    vcf_template = vcf.Reader(filename=template)
+    
+    data_format = vcf_template.metadata['fileDate']
+    vcf_template.metadata['fileDate'] = datetime.datetime.now().strftime(data_format)
+    data_format = vcf_template.metadata['fileUTCtime'][0]
+    vcf_template.metadata['fileUTCtime'][0] = datetime.datetime.utcnow().strftime(data_format)
+    
+    vcf_variant = tempfile.NamedTemporaryFile(prefix = "ALLVariant_1|"
+                                             ,suffix='.vcf', delete=False) 
+    vcf_variants.append (vcf_variant)
+    vcf_writer = vcf.Writer(vcf_variant, vcf_template)
+    record=None
+    for r in vcf_template:
+        record=r
+
+    vcf_variant_max_rows = myconf.take('iVarDB.vcf_variant_max_rows', cast=int) or 0
+    r_count = 0
+    for r in rows:
+        r_count= r_count+1
+        if vcf_variant_max_rows != 0:
+            if r_count % vcf_variant_max_rows == 0: # create new vcf file every vcf_variant_max_rows rows to permit to be managed form the subsequent elaboration 
+                vcf_writer.close()
+                vcf_variant.close()
+                n = (r_count // vcf_variant_max_rows ) +1  #// no decimal
+                vcf_variant = tempfile.NamedTemporaryFile(prefix = "ALLVariant_" + str(n) + "|"
+                                                         ,suffix='.vcf', delete=False)
+                vcf_variants.append (vcf_variant)
+                vcf_writer = vcf.Writer(vcf_variant, vcf_template)
+            #endif
+        #endif
+        #for record in vcf_template:
+        #"CHROM"|"POS"|"REF"|"ALT"	
+        id_hg = r.id_hg.split("|")
+        if len(id_hg)== 4:
+            record.CHROM = id_hg[0]
+            record.POS = id_hg[1]
+            record.REF = id_hg[2]
+            fede  = id_hg[3]
+            record.ALT[0] = id_hg[3]
+            vcf_writer.write_record(record)
+            vcf_writer.flush()
+        #endif
+    ##end for record
+    #end for r
+    vcf_writer.close()
+    vcf_variant.close()
+
+    return vcf_variants

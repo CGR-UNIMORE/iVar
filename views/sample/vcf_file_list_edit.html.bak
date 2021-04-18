@@ -1,0 +1,102 @@
+{{extend 'layout.html'}}
+{{=form_head}}
+<form id ="default" action="#" class="form-group" enctype="multipart/form-data" method="post">
+    <div>
+        <table class = "web2py_grid col-sm-12">
+            <thead>
+                <tr>
+                    <th class="col-sm-4">
+                        {{=form_default.custom.label['VCF_file_type']}}
+                    </th>
+                    <th class="col-sm-2">
+                        {{=form_default.custom.label['id_panel']}}
+                    </th>
+                    <th class="col-sm-2">
+                        {{=form_default.custom.label['fl_sample_type']}}
+                    </th>
+                    <th class="col-sm-2">
+                        {{=form_default.custom.label['fl_tissue_type']}}
+                    </th>
+                    <th class="col-sm-2">
+                        {{=form_default.custom.label['fl_sex']}}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        {{=form_default.custom.widget['VCF_file_type']}}  
+                    </td>
+                    <td>
+                        {{=form_default.custom.widget['id_panel']}}
+                    </td>
+                    <td>
+                        {{=form_default.custom.widget['fl_sample_type']}} 
+                        <span> </span>
+                    </td>
+                    <td>
+                        {{=form_default.custom.widget['fl_tissue_type']}} 
+                        <span> </span>
+                    </td>
+                    <td>
+                        {{=form_default.custom.widget['fl_sex']}} 
+                        <span> </span>
+                    </td>
+                </tr>
+            </tbody>
+            <tfooter>
+                <td style="vertical-align:top">
+                    {{=A(T('Vai a gestione'),' ',db.VCF_file_type.name_type.label, _href=URL('vcf','vcf_file_type_list'), _target='blank')}}
+                </td>
+                <td style="vertical-align:top">
+                    {{=A(T('Vai a gestione'),' ',db.VCF_file.id_panel.label, _href=URL('vcf','vcf_panel_list'), _target='blank')}}
+                </td>
+                <td></td>
+                <td></td>
+                <td>
+                    <input class="btn btn-link" onclick="imposta_default()" type="button" value="Imposta valori"/></div>
+                </td>
+            </tfooter>
+        </table>
+    </div>
+
+{{=form_list}}
+
+<script>
+    
+function imposta_default() {
+    jQuery('input[name=records]').each(function(){
+        jQuery(this).prop('checked','checked');
+    });
+
+    var default_id_panel = jQuery('select[id=default_id_panel]').val();
+    //console.log('id_panel: ' + default_id_panel);
+    if (default_id_panel !== ""){
+        jQuery('select[id=VCF_file_id_panel]').each(function(index,element){
+            jQuery(this).val(default_id_panel);
+        });
+    }
+    var default_fl_sample_type = jQuery('select[id=default_fl_sample_type]').val(); 
+    //console.log('fl_sample_type: ' + default_fl_sample_type);
+    if (default_fl_sample_type !== ""){
+        jQuery('select[id=VCF_file_fl_sample_type]').each(function(index,element){
+            jQuery(this).val(default_fl_sample_type);
+        });
+    }
+    var default_fl_tissue_type = jQuery('select[id=default_fl_tissue_type]').val(); 
+    //console.log('fl_tissue_type: ' + default_fl_tissue_type);
+    if (default_fl_tissue_type !== ""){
+        jQuery('select[id=VCF_file_fl_tissue_type]').each(function(index,element){
+            jQuery(this).val(default_fl_tissue_type);
+        });
+    }
+    var default_fl_sex = jQuery('select[id=default_fl_sex]').val(); 
+    //console.log('fl_sex: ' + default_fl_sex);
+    if (default_fl_sex !== ""){
+        jQuery('select[id=VCF_file_fl_sex]').each(function(index,element){
+            jQuery(this).val(default_fl_sex);
+        });
+    }
+}
+
+</script>

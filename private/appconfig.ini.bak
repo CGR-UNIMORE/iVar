@@ -1,0 +1,48 @@
+; App configuration
+[app]
+name        = iVarDB
+author      = Federica Cestari
+description = DataBase Genomics Variants
+keywords    = genomics, variant, UniMoRe
+generator   = Web2py Web Framework
+production  = false
+toolbar     = false
+
+; Host configuration
+[host]
+names = localhost:*, 127.0.0.1:*, *:*, *
+
+; db configuration
+[db]
+uri       = mysql://ivar:NzJ5aGEVatwGHFPp@localhost/ivar
+migrate   = True
+pool_size = 5
+
+[vcf_file]
+vcf_file_path=/home/web2py/web2py/data/iVar/VCF_FILE.file_upload/
+vcf_file_upload=/home/web2py/web2py/applications/iVar/uploads/VCF_FILE.file_upload/
+
+
+; smtp address and credentials
+[smtp]
+server = smtp.gmail.com:587
+sender = you@gmail.com
+login  = username:password
+tls    = true
+ssl    = true
+
+[scheduler]
+enabled   = false
+heartbeat = 1
+
+[google]
+analytics_id =
+
+[iVarDB]
+default_paginate=10
+default_classif=Classe GenClin MO
+vcf_variant_template = static/vcf_variant_template.vcf
+vcf_reannotation_max_rows = 10000
+clinvar_url = https://www.ncbi.nlm.nih.gov/clinvar
+clinvar_hgvs = HGVS_c_SOPHiA,HGVS_c_VEP,HGVS_c_Annovar,HGVS_c_snpEff
+special_attributes=HGVS_c_SOPHiA,HGVS_c_VEP,,HGVS_c_Annovar,HGVS_c_snpEff,Result,Region

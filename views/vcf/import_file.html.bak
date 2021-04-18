@@ -1,0 +1,25 @@
+{{extend 'layout.html'}}
+{{=form_head}}
+
+<form action="#" class="form-horizontal" enctype="multipart/form-data" method="post" id="form_A_FAMILIARE">
+<!--{{=form.custom.begin}}-->
+    <div class="form-group" id="file_upload__row" >
+                <label class="control-label col-sm-2">
+                    {{=form.custom.label['file_upload']}}
+                </label>
+                <div class="col-sm-10">
+                    {{=form.custom.widget['file_upload']}}
+                    <span class="help-block">{{=form.custom.comment['file_upload']}}</span>
+                </div>
+      </div>
+
+
+<!-- Fine from personalizzata -->
+
+<div class="form-group" id="submit_record__row">
+    <div class="col-sm-8 col-sm-offset-4">
+        {{=form.custom.submit}}
+    </div>
+</div>
+
+{{=form.custom.end}}

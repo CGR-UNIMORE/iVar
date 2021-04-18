@@ -1,0 +1,4 @@
+Sample	Date	Classif	Gene	Region_type	Region	Copy number	CNV type	locus
+3524	11/10/2017	C5	BRCA2	exon	4-26	3	duplication	c.(316+1_317-1)_(9648+1_9649-1)dup
+
+
