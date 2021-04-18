@@ -36,7 +36,7 @@ def update_TEXT_FILE_ids():
         row.TEXT_FILE_ids = []
         row.update_record()
         db.commit()
-    return response.render(default_view, dict(form_head=FORM(DIV(T("Update Text file ids in SAMPE"))),form=""))
+    return response.render(default_view, dict(form_head=FORM(DIV(T("Update Text file ids in SAMPLE"))),form=""))
 
 def update_all_VARIANT_classif():
     for row in db(db.VARIANT.id>0).select():

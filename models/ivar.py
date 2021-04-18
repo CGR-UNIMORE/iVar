@@ -120,8 +120,8 @@ def string_to_list(string):
         lista = string.split('"|"') #trasformo in lista
     else:
         lista = string
-    if not isinstance(lista,type(list)):
         lista = [lista]
+
     lis = list()
     for x in lista:
         if x[0]=='"':  #tolgo primo e ultimo carattere se sono "
@@ -256,8 +256,11 @@ def find_insert_VARIANT(hg,variant,gene,classif,classif_valid_from):
 
     classif = classif.strip() or ''
 
-    if variant[0:3] != "chr":
-        variant = "chr" + variant  #se variant non inizia per chr, aggiungerlo
+    #if variant[0:3] != "chr": #change for add CNV type variant
+    if variant[0].isdigit():   #if variant start with number add "chr"
+        variant = "chr" + variant
+    elif variant[1]=='|':  #if variant start with '<char>|', the second position is pipe, add "chr"
+        variant = "chr" + variant
 
     row = None
     if hg=='hg19':
@@ -270,10 +273,6 @@ def find_insert_VARIANT(hg,variant,gene,classif,classif_valid_from):
         variant_id = row['id']
         id_hg19 = row['id_hg19']
         id_hg38 = row['id_hg38']
-        if gene == '':
-            gene = row['gene']
-        if classif == '':
-            classif = row['classif']
         update_VARIANT(variant_id,id_hg19,id_hg38,gene,classif,classif_valid_from)
     else:
         if hg=='hg19':
@@ -281,7 +280,8 @@ def find_insert_VARIANT(hg,variant,gene,classif,classif_valid_from):
         if hg=='hg38':
             variant_id = db.VARIANT.insert(id_hg38=variant, gene=gene, classif=classif)
         db.commit()
-        update_VARIANT_ATTRIBUTE_classif(variant_id,classif_valid_from, False)
+        if classif !='':
+            update_VARIANT_ATTRIBUTE_classif(variant_id,classif,classif_valid_from)
 
     return variant_id
 
@@ -293,10 +293,11 @@ def update_VARIANT(variant_id,id_hg19,id_hg38,gene,classif,classif_valid_from):
         row.id_hg38 = id_hg38
         if gene != '':
             row.gene = gene
-        row.classif = classif
         row.update_record()
         db.commit()
-        update_VARIANT_ATTRIBUTE_classif(variant_id,classif_valid_from)
+        if classif !='':
+            update_VARIANT_ATTRIBUTE_classif(variant_id,classif,classif_valid_from)
+            update_VARIANT_classif(variant_id) #update classif from current attribute of DEFAULT_CLASSIF
 
 
 def update_VARIANT_classif(variant_id):
@@ -470,12 +471,10 @@ def insert_VARIANT_ATTRIBUTE(variant_id, attribute,valid_from, accept_empty_valu
 
 
 
-def update_VARIANT_ATTRIBUTE_classif(variant_id,classif_valid_from=None,accept_empty_value=False):
+def update_VARIANT_ATTRIBUTE_classif(variant_id,classif, classif_valid_from=None,accept_empty_value=False):
     attribute = dict()
-    row = db(db.VARIANT.id == variant_id).select().first()
-    if row:
-        attribute[DEFAULT_CLASSIF]=row.classif or ''
-        insert_VARIANT_ATTRIBUTE(row.id, attribute,classif_valid_from, accept_empty_value)
+    attribute[DEFAULT_CLASSIF]=classif or ''
+    insert_VARIANT_ATTRIBUTE(variant_id, attribute,classif_valid_from, accept_empty_value)
 
 def delete_false_VARIANT_ATTRIBUTE():
      for row in db(db.VARIANT_ATTRIBUTE.attribute_value.contains("|")).select():
@@ -562,7 +561,7 @@ db.define_table('ANNOTATION_TYPE'
                ,Field('classif_eval'       ,'text'                      ,label = T('Eval Classif')
                   ,comment = T('evaluation classif. Es: classif[0][0:2] if classif[0][0:2] in ["C1","C2",C3","C4",C5"] else ""'))
                ,Field('classif_valid_from' ,'string'      ,length = 100 ,label = T('Classif valid from')
-                  ,comment = T('Specify "column":"format date" - Es: "Date val":"%d/%m/%Y"'))
+                  ,comment = T('Specify "column":"format date" - Es: "Date val":"%d/%m/%Y" - "%d/%m/%Y" for 01/01/2021 , "%d/%m/%y" for 01/01/21'))
                ,Field('row_filter'          ,'list:string'      ,length = 150 ,label = T('Row filter')
                      ,comment = T('Specify the conditions for importing the rows. Empty = all'))
                ,Field('break_condition'     ,'list:string'  ,length = 500 ,label = T('Break condition')

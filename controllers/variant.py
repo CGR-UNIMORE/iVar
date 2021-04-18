@@ -170,7 +170,7 @@ def edit():
             redirect(form_head_indietro)
         else:
             if record:
-                update_VARIANT_ATTRIBUTE_classif(record.id,True)
+                update_VARIANT_ATTRIBUTE_classif(record.id,form.vars.classif, None, True)
                 session.flash = T('Variant modified')
                 redirect(URL(args=request.args, vars=request.get_vars, host=True))
                 #redirect(URL('variant','edit',args=[record.id], vars=dict(form_head_indietro=form_head_indietro)))
