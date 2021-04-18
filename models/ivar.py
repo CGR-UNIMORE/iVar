@@ -428,7 +428,8 @@ def insert_VARIANT_ATTRIBUTE(variant_id, attribute,valid_from, accept_empty_valu
     if not valid_from or valid_from == None:
         valid_from = datetime.datetime.now()
     for (k,v) in attribute.items():
-        if v.strip() != '' or accept_empty_value: # inserisco solo se valore è qualcosa di significativo o se accept_empty_value)
+        if v.strip() != '' or accept_empty_value: # FIXME: english translate.
+            # inserisco solo se valore è qualcosa di significativo o se accept_empty_value)
             # ci sono casi in cui, anche all'interno dello stesso file annotation, è presente più volte lo stesso valore per lo stesso attributo
             # in tal modo , a parità di valore e validità, non ricarico lo stesso dato.
             row_same = db((db.VARIANT_ATTRIBUTE.VARIANT_id == variant_id)&(db.VARIANT_ATTRIBUTE.attribute_name == k)
